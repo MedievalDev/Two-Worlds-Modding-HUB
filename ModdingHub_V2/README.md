@@ -14,7 +14,7 @@ The TW1 Modding Hub provides a single entry point for the entire Two Worlds 1 mo
 
 **Key Features:**
 - 🔧 **14 tools** with auto-detection, manual path selection, and download links
-- 📖 **6+ guides** loaded from external files — drop new `.txt` files into the `guides/` folder and they appear automatically
+- 📖 **8+ guides** loaded from external files — drop new `.txt` files into the `guides/` folder and they appear automatically
 - 🌍 **Bilingual** — full English and German support (UI + all guides)
 - 📄 **File format database** — documentation for all TW1 formats (.wd, .lan, .par, .lnd, .vdf, .phx, .lhc, .idx, .qtx, .shf, .bmp)
 - 🔍 **Search** across tools, guides, and file formats
