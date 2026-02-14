@@ -13,8 +13,8 @@ Central hub for all Two Worlds 1 modding tools, guides, and file format document
 The TW1 Modding Hub provides a single entry point for the entire Two Worlds 1 modding ecosystem. It automatically detects installed tools, provides bilingual guides (English & German), documents all proprietary file formats, and makes it easy to launch any tool from one place.
 
 **Key Features:**
-- 🔧 **11 tools** with auto-detection, manual path selection, and download links
-- 📖 **6+ guides** loaded from external files — drop new `.txt` files into the `guides/` folder and they appear automatically
+- 🔧 **14 tools** with auto-detection, manual path selection, and download links
+- 📖 **8+ guides** loaded from external files — drop new `.txt` files into the `guides/` folder and they appear automatically
 - 🌍 **Bilingual** — full English and German support (UI + all guides)
 - 📄 **File format database** — documentation for all TW1 formats (.wd, .lan, .par, .lnd, .vdf, .phx, .lhc, .idx, .qtx, .shf, .bmp)
 - 🔍 **Search** across tools, guides, and file formats
@@ -25,7 +25,8 @@ The TW1 Modding Hub provides a single entry point for the entire Two Worlds 1 mo
 
 ## Screenshot
 
-*Coming soon*
+<img src="https://alchimist-sotw.de/github/Hub1.png" width="800">
+<img src="https://alchimist-sotw.de/github/Hub2.png" width="800">
 
 ---
 
