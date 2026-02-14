@@ -1,9 +1,10 @@
 {
   "lang": "en",
   "view_mode": "grid",
-  "font_size": 10,
-  "guides_dir": "C:\\Users\\marco\\Desktop\\ModdingHub_V2\\guides",
+  "font_size": 12,
+  "guides_dir": "",
   "user_tools": [],
   "user_guides": [],
   "tool_paths": {}
+
 }
