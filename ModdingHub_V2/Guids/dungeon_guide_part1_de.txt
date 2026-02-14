@@ -1,0 +1,515 @@
+================================================================================
+  TWO WORLDS 1 — Dungeon-Erstellungsguide  ·  Teil 1: Manuelle Methode
+================================================================================
+
+ÜBERSICHT
+─────────
+Dieser Guide behandelt die manuelle Methode zur Erstellung von
+Dungeons (Höhlen, Untergrund-Level) in Two Worlds 1 mit dem
+TwoWorldsEditor. Dieser Ansatz wurde von der TW-Modding-Community
+(Credits: Smoothness) durch Reverse Engineering der originalen
+Vanilla-Dungeons von Reality Pump entwickelt.
+
+Anstatt das dedizierte Dungeon-Editor-Tool des SDK zu verwenden
+(behandelt in Teil 2 dieses Guides), arbeitet diese Methode komplett
+innerhalb des TwoWorldsEditor-Hauptprogramms. Du erstellst ein neues
+Untergrund-Level, lädst ein bestehendes Höhlen-Template für Terrain
+und Texturen und platzierst dann manuell Objekte und Marker und
+verknüpfst alles mit der Oberflächen-Map.
+
+Diese Methode ist noch experimentell — sie wurde durch Ausprobieren
+herausgefunden und manches funktioniert nicht immer wie erwartet.
+Betrachte dies als lebendes Dokument das aktualisiert wird, wenn die
+Community mehr herausfindet.
+
+  Oberflächen-Map (mit Eingang)  ←→  Untergrund-Map (der Dungeon)
+        ↓                                ↓
+  Cave Entrance Prop                 Cave Exit Prop
+  Dest_from_lower Marker             Dest_from_upper Marker
+  Properties: Lower = Dungeon        Properties: Upper = Oberfläche
+
+
+WIE DUNGEONS IN TWO WORLDS FUNKTIONIEREN
+─────────────────────────────────────────
+In Two Worlds besteht die Spielwelt aus vielen einzelnen Map-Tiles
+(Levels). Jedes Oberflächen-Map-Tile kann ein zugehöriges Untergrund-
+Level haben. Das Spiel handhabt den Übergang zwischen Oberfläche und
+Untergrund über ein System aus Markern und Props:
+
+  Oberflächenseite:
+    • Ein sichtbares Eingangs-Prop (z.B. Höhlenmund, Dungeon-Tür)
+    • Ein Teleport-Zielmarker daneben (Dest_from_lower)
+    • Die Level-Properties verlinken "Lower" auf den Untergrund
+
+  Untergrundseite:
+    • Ein sichtbares Ausgangs-Prop (z.B. Höhlenausgang, Leiter, Portal)
+    • Ein Teleport-Zielmarker daneben (Dest_from_upper)
+    • Die Level-Properties verlinken "Upper" auf die Oberfläche
+
+Wenn der Spieler im Spiel einen Höhleneingang betritt, liest die
+Engine diese Marker und die Upper/Lower-Verbindung um den Spieler
+zwischen den beiden Levels zu teleportieren.
+
+Jedes Map-Tile in der Spielwelt folgt einer Raster-Namenskonvention
+(z.B. Map_E01, Map_F03). Untergrund-Level sind separate .lnd-Dateien
+die mit ihrem übergeordneten Oberflächen-Tile verknüpft sind.
+
+
+VORAUSSETZUNGEN
+───────────────
+• TwoWorldsSDK (z.B. unter C:\Games\TwoWorldsSDK\)
+• Two Worlds Epic Edition (Steam oder Standalone)
+• Buglords Tools: wdio.py (WD-Packer), TwoWorlds1 Mod Selector
+• Python 3.10+ (für wdio.py)
+• Grundlegende Vertrautheit mit dem TwoWorldsEditor
+  (siehe das TW1 Editor Einsteiger-Handbuch für die Grundlagen)
+
+
+================================================================================
+  SCHRITT 1 — Oberflächen-Map vorbereiten (Der Eingang)
+================================================================================
+
+Bevor du den Dungeon selbst erstellst, musst du einen Eingang
+auf deiner Oberflächen-Map einrichten. Das ist es, was der Spieler
+sieht und womit er interagiert um den Dungeon zu betreten.
+
+Öffne deine Oberflächen-Map im TwoWorldsEditor und wechsle in den
+Objekt-Platzierungsmodus (der Objects-Button in der Modus-Auswahl-
+leiste).
+
+
+A) Cave Entrance Prop platzieren
+─────────────────────────────────
+  1. Im Objects-Panel auf der linken Seite des Editors die
+     verfügbaren Objekte durchsuchen.
+
+  2. Ein Höhleneingangs-Prop finden. Diese sind in der Objects-
+     Sektion unter Namen wie "Cave Entrance" oder ähnlichen
+     Höhlen-/Dungeon-Tür-Modellen zu finden.
+
+  3. An der gewünschten Stelle auf der Oberflächen-Map platzieren.
+
+  4. Position bei Bedarf mit den Numpad-Tasten anpassen:
+       Numpad +/-     Anheben / Absenken
+       Numpad 7/9     Links / Rechts bewegen
+       Numpad 1/3     Vorwärts / Rückwärts bewegen
+       Numpad //*     X-Achse drehen
+       Numpad 4/6     Y-Achse drehen
+       Numpad 8/2     Z-Achse drehen
+
+  TIPP: Alt+H (Spielheld & Kamera) verwenden um den Spielcharakter
+  im Editor zu platzieren und herumzulaufen. So kann man prüfen ob
+  der Eingang aus Spielerperspektive gut aussieht.
+
+
+B) Zielmarker platzieren
+─────────────────────────
+  1. Immer noch in der Objects-Sektion den Marker finden, der wie
+     ein Quadrat aussieht und "Dest_from_lower" heißt (vollständiger
+     Name: MARKER_TELEPORT_DEST_FROMLOWER).
+
+  2. Diesen Marker neben dem Höhleneingangs-Prop platzieren — das
+     ist die Position, an der der Spieler erscheint wenn er den
+     Dungeon verlässt (zurück nach oben teleportiert wird).
+
+  3. Sicherstellen, dass der Marker auf begehbarem Boden nahe
+     (aber nicht innerhalb) des Eingangs-Props liegt.
+
+  TIPP: Um Marker im Editor zu sehen, muss "Draw Markers" aktiviert
+  sein. Mit Alt+M umschalten. Marker sind im Spiel unsichtbar aber
+  essentiell für das Teleport-System.
+
+
+C) Lower-Verbindung in Properties setzen
+─────────────────────────────────────────
+  1. Zu Tools → Properties gehen.
+
+  2. Im Bereich "Connected Levels" das "Lower"-Feld finden.
+
+  3. Den Dateinamen deines Untergrund-Levels eingeben (das du in
+     Schritt 2 erstellen wirst). Beispiel: "Map_E01_1".
+
+  4. OK klicken und die Oberflächen-Map speichern.
+
+HINWEIS: Du kannst diese Verbindung auch später setzen, nachdem du
+das Untergrund-Level erstellt hast.
+
+
+================================================================================
+  SCHRITT 2 — Das Untergrund-Level erstellen (Der Dungeon)
+================================================================================
+
+Jetzt erstellst du den eigentlichen Dungeon als separates
+Untergrund-Level.
+
+
+A) Neues Level erstellen
+─────────────────────────
+  1. Im TwoWorldsEditor zu Datei → Neu gehen.
+
+  2. Zu Tools → Properties gehen um die Level-Einstellungen zu öffnen.
+
+  3. Folgende Einstellungen konfigurieren:
+
+     Level Name:         Beschreibenden Namen geben (z.B. "E1 Höhle")
+
+     Level File Name:    Namenskonvention für Untergrund-Level verwenden.
+                         Community-Konvention (Smoothness): Dungeons nach
+                         ihrer übergeordneten Oberflächen-Map mit "_1"-
+                         Suffix benennen.
+                         Beispiel: Oberfläche = "E1" → Dungeon = "E1_1"
+
+     Size:               Medium (128 x 128) — Standardgröße.
+                         HINWEIS: Absturz möglich bei Größen über 512x512.
+
+     Underground Level:  DIESE CHECKBOX AKTIVIEREN. Kritisch — teilt der
+                         Engine mit, dass dies eine Untergrund-Map ist.
+
+     Connected Levels:
+       Upper:            Dateiname deiner Oberflächen-Map eingeben.
+                         Erstellt die Rückverknüpfung zur Oberfläche.
+
+  4. OK klicken.
+
+
+B) Höhlen-Template über World Configuration laden
+──────────────────────────────────────────────────
+Mit einem komplett leeren Level zu starten ist aufwändig. Einfacher:
+
+  1. World-Configuration-Menü öffnen (Globus-Symbol oder Tools-Menü).
+
+  2. Option für existierenden Untergrund-Standort finden.
+
+  3. Vordefinierten Höhlentyp auswählen, z.B. "Cave 1".
+
+  4. Auswahl bestätigen.
+
+Der Editor lädt die Terrain-Form und Texturen der gewählten Höhle
+auf dein Level. Das gibt dir eine vollständig texturierte Höhlen-
+umgebung als Ausgangspunkt die du modifizieren und bevölkern kannst.
+
+
+C) Cave Exit Prop platzieren
+─────────────────────────────
+  1. In den Objekt-Platzierungsmodus wechseln.
+
+  2. "Cave Exit"-Prop in der Objects-Sektion finden und platzieren
+     wo der Dungeon-Ausgang sein soll.
+
+
+D) Ausgangs-Zielmarker platzieren
+──────────────────────────────────
+  1. Den quadratischen Marker "Dest_from_upper" finden
+     (MARKER_TELEPORT_DEST_FROMUPPER).
+
+  2. Neben dem Cave Exit Prop platzieren.
+
+  3. Auf begehbarem Terrain nahe dem Ausgangs-Prop platzieren.
+
+WICHTIG: Dieser Marker hat eine Doppelfunktion:
+  • Definiert wo der Spieler spawnt wenn er den Dungeon betritt.
+  • Wird vom edundgr.txt-Finalisierungsskript verwendet um erreichbare
+    Bereiche zu berechnen. Fehlt er, deaktiviert das Skript das
+    gesamte Terrain und macht den Dungeon unzugänglich.
+
+
+================================================================================
+  SCHRITT 3 — Den Dungeon bevölkern
+================================================================================
+
+A) Feind-Spawner
+────────────────
+  METHODE 1 — Spawner-Marker (EMPFOHLEN)
+  Spawner-Marker platzieren ("Animal Spawner", "Enemy Spawner" etc.).
+  Feinde spawnen dynamisch an diesen Positionen.
+    • Normale Feinde:   2-6 pro Marker
+    • Riesen / Starke:  1-3 pro Marker
+
+  METHODE 2 — Direkte NPC-Platzierung (NICHT EMPFOHLEN)
+  NPC-Modelle direkt platziert sind komplett inaktiv — stehen wie
+  Statuen. Reagieren nur wenn direkt angegriffen.
+
+  EMPFEHLUNG: Immer Spawner-Marker für Feinde verwenden.
+
+
+B) Truhen und Loot-Behälter
+────────────────────────────
+  • Truhen-Objekte aus der Objects-Sektion platzieren.
+  • Spieler können alle Truhen per Lockpicking öffnen.
+  • Loot ist IMMER zufällig basierend auf dem Charakter-Level.
+  • Einfach platzieren — kein zusätzliches Setup nötig.
+
+
+C) Tore und Türen
+──────────────────
+  • In Dörfern/Burgen: können sich automatisch öffnen.
+  • Außerhalb: bleiben geschlossen, Spieler kann sie manuell öffnen.
+  • Selbst gebaut: öffnen sich höchstwahrscheinlich NICHT automatisch.
+
+
+D) Lichtquellen
+────────────────
+Untergrund-Level haben standardmäßig KEIN Umgebungslicht. Ohne
+Lichtquellen ist der Dungeon komplett dunkel.
+
+Richtlinien:
+  • Licht an Kreuzungen und Abzweigungen
+  • Bereiche um Truhen und wichtige Objekte beleuchten
+  • Eingangs-/Ausgangsbereich beleuchten
+  • Spärliche Beleuchtung = Atmosphäre und Spannung
+  • Dichte Beleuchtung = einfache Navigation
+
+
+E) Dekorative Objekte
+──────────────────────
+  • Möbel (Tische, Stühle, Regale, Fässer)
+  • Umgebungsdetails (Schutt, Knochen, Spinnweben, Pilze)
+  • Strukturelemente (Säulen, Bögen, eingestürzte Wände)
+
+TIPP: Objekt mit Numpad 5 auswählen, mit Numpad 7/9/1/3 bewegen,
+mit +/- heben/senken und mit Numpad //*4/6/8/2 drehen.
+
+
+================================================================================
+  SCHRITT 4 — Das Untergrund-Terrain finalisieren
+================================================================================
+
+A) Terrain Passing und Walkable Objects aktualisieren
+─────────────────────────────────────────────────────
+  1. Tools → Update Terrain Passing (Alt+U) — Kollisionsdaten
+  2. Tools → Update Walkable Objects (Alt+W) — NPC-Navigation
+
+
+B) Das Untergrund-Finalisierungsskript ausführen
+─────────────────────────────────────────────────
+Konsole öffnen (C) und ausführen:
+
+  Editor.FillWorldWithColor 0xFFFFFFFF
+  @edundgr.txt
+
+Das edundgr.txt-Skript führt folgendes aus:
+
+  Editor.ReplaceColor 0xFF000000 0xFFFFFFFF
+    → Schwarzes Terrain auf weiß zurücksetzen.
+
+  editor.LabelNotDisabledPassableFromMarkers
+    MARKER_TELEPORT_DEST_FROMUPPER MARKER_TELEPORT_DEST_FROMLOWER
+    → Erreichbares Terrain von Markern aus berechnen.
+
+  Editor.ReplaceColorOnDisabledTerrain 0xFFFFFFFF 0xFF000000 4
+    → Unerreichbares Terrain schwarz malen. "4" = Kantenübergang.
+
+  editor.savelevel
+    → Level speichern.
+
+Für ALLE Untergrund-Level gleichzeitig:
+  Editor.foreachundergroundlevel Editor.FillWorldWithColor 0xFFFFFFFF
+  Editor.foreachundergroundlevel @edundgr.txt
+
+KRITISCH: Teleport-Marker MÜSSEN vor dem Skript platziert sein!
+
+Bei Problemen zurücksetzen mit:
+  Editor.ClearDisabled
+
+
+C) Mit dem Spielhelden testen
+──────────────────────────────
+  1. Alt+H drücken — Spielcharakter ins Level setzen.
+  2. Mit WASD bewegen und prüfen:
+     • Alle vorgesehenen Bereiche begehbar?
+     • Unsichtbare Wände oder Löcher?
+     • Beleuchtung ausreichend?
+     • Eingangs-/Ausgangsbereiche korrekt?
+     • Spawner-Positionen sinnvoll?
+
+
+================================================================================
+  SCHRITT 5 — Physik kochen und den Mod bauen
+================================================================================
+
+A) PhysX kochen
+────────────────
+  editor.cookphysx.mode geomipmap
+  editor.cookphysx.strength = 1.0
+  editor.cookphysx.overwrite = 1
+  editor.cookphysx.pc out
+
+WICHTIG: .phx darf im .wd-Archiv NICHT komprimiert werden.
+
+
+B) LevelHeaders generieren
+────────────────────────────
+LevelHeadersCacheGen.bat im SDK Tools-Ordner ausführen.
+
+
+C) Mod-Ordner vorbereiten
+──────────────────────────
+  Mods\
+  └── MeinMod\
+      └── Levels\
+          ├── Map_E01.lnd          ← Oberfläche
+          ├── Map_E01.bmp          ← Oberflächen-Minimap
+          ├── Map_E01_1.lnd        ← Dungeon (Untergrund)
+          ├── Map_E01_1.bmp        ← Dungeon-Minimap
+          ├── Map_LevelHeaders.lhc ← Neu generierter Index
+          └── physic\
+              ├── Map_E01.phx      ← Oberflächen-Physik
+              └── Map_E01_1.phx    ← Dungeon-Physik
+
+WICHTIG — "s"-Suffix beim Umbenennen entfernen:
+  Editor:  Map_E01s.lnd  →  Mod: Map_E01.lnd
+
+
+D) Packen und aktivieren
+─────────────────────────
+  1. python wdio.py pack -v 1 -o "Mods\MeinMod" "Mods\MeinMod.wd"
+  2. .wd in den Mods\-Ordner des Spiels legen.
+  3. Mit Mod Selector oder regedit aktivieren.
+  4. IMMER neues Spiel starten zum Testen!
+
+
+================================================================================
+  NÜTZLICHE KONSOLENBEFEHLE FÜR DUNGEON-ARBEIT
+================================================================================
+
+LEVEL & PROPERTIES
+──────────────────
+  editor.LoadLevel level.lnd           Level laden
+  editor.setlevelsize L.lnd W H dX dY N.lnd   Größe ändern
+  editor.savelevel                     Speichern
+  editor.SaveLevelBmp                  Minimap speichern
+
+TERRAIN-FARBE & UNTERGRUND
+──────────────────────────
+  Editor.FillWorldWithColor 0xFFFFFFFF       Weiß füllen
+  Editor.FillWorldWithColor 0xFF000000       Schwarz füllen
+  Editor.ReplaceColor alt neu                Farbe ersetzen
+  Editor.ReplaceColorOnDisabledTerrain alt neu range
+  editor.LabelNotDisabledPassableFromMarkers MARKER1 MARKER2 ...
+  Editor.ClearDisabled                       Flags zurücksetzen
+
+STAPELAUSFÜHRUNG
+────────────────
+  Editor.foreachundergroundlevel @skript.txt
+  Editor.foreachsurfacelevel @skript.txt
+  editor.foreachlevel @skript.txt
+
+MARKER & OBJEKTE
+────────────────
+  Editor.SetDrawMapMarkers MARKER_TYP 0xFFRRGGBB  Hervorheben
+  Editor.SetDrawMapMarkers x                       Ausschalten
+  editor.MapMarkerSize 2                           Markergröße
+  Editor.DeleteBadMarkers                          Kaputte entfernen
+  editor.deletemarker markerID anzahl              Marker löschen
+  createEd x y z alpha objectID                    Objekt platzieren
+  Editor.DeleteAllObjects objectID                 Alle eines Typs löschen
+  Editor.ReplaceObject alt neu                     Typ ersetzen
+
+VERBUNDENE LEVEL
+────────────────
+  Editor.LoadObjectsForConnectedLevel 0/1
+  Editor.CopyAltitudeFromConnected size mode
+  Editor.CopyEdgeFromConnected
+
+ANZEIGE & TESTEN
+────────────────
+  Alt+H   Spielheld & Kamera (WASD-Bewegung)
+  Alt+M   Marker anzeigen
+  Alt+O   Objekte anzeigen
+  Alt+U   Terrain Passing aktualisieren
+  Alt+W   Walkable Objects aktualisieren
+
+PHYSIK
+──────
+  editor.cookphysx.mode geomipmap
+  editor.cookphysx.strength = 1.0
+  editor.cookphysx.overwrite = 1
+  editor.cookphysx.pc out
+
+SONSTIGE
+────────
+  Editor.RemoveLocalFog           Nebel entfernen
+  editor.setwaterh 850            Wasserhöhe setzen
+  editor.AddZToAll xxx            Höhenversatz für alle Objekte
+
+
+================================================================================
+  NAMENSKONVENTIONEN
+================================================================================
+
+  Oberflächen-Maps:  Map_[Buchstabe][Nummer]    z.B. Map_E01
+  Dungeon-Maps:      + "_1" Suffix               z.B. Map_E01_1
+  Editor-Speicher:   + "s" Suffix                z.B. Map_E01s.lnd
+                     → Beim Mod-Bau entfernen:   Map_E01.lnd
+
+
+================================================================================
+  FEHLERBEHEBUNG
+================================================================================
+
+Problem                           Lösung
+────────────────────────────────  ──────────────────────────────────────
+Dungeon erscheint nicht im Spiel  Properties auf BEIDEN Leveln prüfen.
+                                  Lower/Upper korrekt gesetzt?
+
+Spieler spawnt in der Leere       Dest_from_upper Marker fehlt/falsch.
+                                  Auf begehbarem Terrain platzieren.
+                                  PhysX kochen.
+
+Gesamter Dungeon schwarz          Teleport-Marker vor @edundgr.txt
+                                  platzieren. Editor.ClearDisabled
+                                  dann erneut @edundgr.txt.
+
+Falscher Teleport-Ort             Dest_from_lower Marker auf Oberfläche
+                                  prüfen.
+
+Keine Kollision                   PhysX kochen. .phx NICHT komprimiert
+                                  im .wd.
+
+Feinde bewegen sich nicht         Spawner-Marker statt NPC-Modelle.
+
+Dungeon komplett dunkel           Lichtquellen platzieren.
+
+Marker nicht sichtbar             Alt+M zum Umschalten.
+
+Map lädt nicht mit Mod            LevelHeaders.lhc neu generieren.
+                                  .wd im Mods\-Ordner? Registry aktiv?
+
+Änderungen nicht sichtbar         Neues Spiel starten, kein Savegame.
+
+
+================================================================================
+  KOMPLETTE WORKFLOW-CHECKLISTE
+================================================================================
+
+  OBERFLÄCHEN-MAP:
+  [ ] Oberflächen-Map im Editor öffnen
+  [ ] Cave Entrance Prop platzieren
+  [ ] Dest_from_lower Marker nahe Eingang platzieren
+  [ ] "Lower" in Properties → Connected Levels setzen
+  [ ] Speichern + PhysX kochen
+
+  UNTERGRUND-MAP:
+  [ ] Datei → Neu → neues Level
+  [ ] Properties: "Underground Level" aktivieren
+  [ ] Properties: Größe 128x128, "Upper" = Oberfläche
+  [ ] World Configuration → Höhlen-Template laden
+  [ ] Cave Exit Prop + Dest_from_upper Marker platzieren
+  [ ] Spawner, Truhen, Lichtquellen, Deko platzieren
+  [ ] Alt+U (Terrain Passing) + Alt+W (Walkable Objects)
+  [ ] Editor.FillWorldWithColor 0xFFFFFFFF + @edundgr.txt
+  [ ] Alt+H testen → PhysX kochen → Speichern
+
+  MOD BAUEN:
+  [ ] LevelHeaders neu generieren
+  [ ] Dateien kopieren & "s"-Suffix entfernen
+  [ ] In .wd packen (Buglords wdio.py)
+  [ ] Aktivieren → Neues Spiel starten
+
+
+================================================================================
+  Quellen: Smoothness (Discord TW Community), Reality Pump SDK 1.3
+           Dokumentation, VinnieMc (Editor Manual v1.2),
+           Medieval_Dev & Smoothness (Discord FAQ)
+  Erstellt für das TW Editor Community-Dokumentationsprojekt
+================================================================================

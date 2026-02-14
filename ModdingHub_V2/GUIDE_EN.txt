@@ -1,0 +1,313 @@
+================================================================================
+  TW1 MODDING HUB v2.0 — USER GUIDE
+================================================================================
+
+
+WHAT IS THE MODDING HUB?
+────────────────────────
+The TW1 Modding Hub is the central application for Two Worlds 1 modding.
+It brings together all community tools, bilingual guides, and file format
+documentation in one place. Instead of hunting through folders for the
+right .py or .exe, you launch everything from the hub.
+
+
+GETTING STARTED
+───────────────
+1. Place these files in a folder:
+
+     YourFolder/
+     ├── TW_ModdingHub.exe    (or tw1_modding_hub.py)
+     └── guides/
+         ├── editor_beginner_guide_en.txt
+         ├── editor_beginner_guide_de.txt
+         ├── dungeon_guide_part1_en.txt
+         ├── dungeon_guide_part1_de.txt
+         ├── dungeon_guide_part2_en.txt
+         ├── dungeon_guide_part2_de.txt
+         ├── map_to_mod_guide_en.txt
+         └── map_to_mod_guide_de.txt
+
+2. Run the hub:
+     Double-click TW_ModdingHub.exe
+     Or: python tw1_modding_hub.py
+
+3. The hub opens centered on your screen (50% width, 65% height).
+
+4. A config file (tw1_modding_hub.json) is created automatically on
+   first run. It stores your settings, tool paths, and custom entries.
+
+
+THE INTERFACE
+─────────────
+The hub has three main areas:
+
+  TOP BAR
+    Left:   Title
+    Center: Search bar — searches tools, guides, AND file formats
+    Right:  Credits, Settings, View toggle (Grid/List), Language (EN/DE)
+
+  TOOLS TAB (🔧)
+    Shows all registered tools as square cards in a 4-column grid.
+    Each card shows: icon, name, status (Found/Not Found), description,
+    supported file formats, and action buttons.
+
+  GUIDES TAB (📖)
+    Left panel: list of all guides (click to preview, double-click for
+    full-screen popup). Right panel: preview of selected guide.
+
+
+TOOL CARDS — HOW THEY WORK
+───────────────────────────
+Every tool has a status indicator:
+
+  ● Found (green)
+    The hub located the tool on your system.
+    → Shows a green LAUNCH button. Click to start the tool.
+
+  ● Not Found (red)
+    The hub could not find the tool.
+    → Shows two buttons:
+      ⬇ Download — opens the GitHub/ModDB page in your browser
+      📂 Set Path — lets you browse to the .exe/.py manually
+
+Once you set a path manually, it is saved in the config file and
+remembered for all future launches.
+
+
+TOOL AUTO-DETECTION
+───────────────────
+The hub searches for tools in this order:
+
+  1. Saved path from config (if you previously used "Set Path")
+  2. Same directory as the hub
+  3. One level up (../) and ../Tools/
+
+If none of these work, the tool shows as "Not Found" and you can
+either download it or browse to it manually.
+
+
+REGISTERED TOOLS
+────────────────
+The hub ships with 11 pre-registered tools:
+
+  MedievalDev Tools (Python):
+    • TW Editor CMD Injector — console command injection
+    • TW1 LAN Viewer — .lan language file viewer
+    • TW1 Quest Editor — .idx/.qtx/.shf quest editing
+    • TW1 PAR Tool — .par parameter database editor
+    • TW1 VDF In/Export Tool — .vdf 3D model import/export
+    • TW1 LND Viewer — .lnd level/map file viewer
+    • TW1 Modding Guide — interactive step-by-step guide
+
+  SDK Tools (Executables):
+    • TwoWorlds Editor — the official SDK level editor
+    • WhizzEdit — Reality Pump's quest authoring tool
+
+  Buglord's Tools (Executables):
+    • Mod Selector — toggle mods on/off via registry
+    • WD Repacker — pack/unpack .wd mod archives
+
+
+ADDING CUSTOM TOOLS
+───────────────────
+Click the "+ Add Tool" button at the bottom of the Tools tab.
+
+Fill in:
+  • Tool Name (required)
+  • Path to the .py or .exe file
+  • Supported file formats (comma-separated, e.g. ".lan,.par")
+  • Description in English and/or German
+  • Download link (optional)
+
+Click Save. The tool appears immediately as a new card.
+
+
+GUIDES — BUILT-IN
+──────────────────
+The hub includes 6 guides:
+
+  Loaded from external files (in the guides/ folder):
+    1. Editor Beginner Guide — complete editor reference with
+       shortcuts, terrain, textures, objects, markers, console
+    2. Dungeon Guide Part 1 — manual dungeon creation method
+    3. Dungeon Guide Part 2 — SDK Dungeon Editor (block-based)
+    4. Map-to-Mod Guide — full workflow from editor to .wd mod
+
+  Embedded in the hub (always available):
+    5. PhysX Cooking Reference — the 4 commands + warnings
+    6. File Format Overview — all formats and which tool handles each
+
+All guides are available in English AND German. The language switches
+with the globe button in the top bar.
+
+
+GUIDE AUTO-DISCOVERY
+────────────────────
+This is one of the hub's most useful features:
+
+  The hub scans the guides/ folder every time it loads. Any .txt or
+  .md file it finds that is NOT already a built-in guide gets added
+  automatically to the guide list.
+
+To add a new guide:
+  1. Write your guide as a .txt or .md file
+  2. Drop it into the guides/ folder
+  3. Restart the hub (or switch tabs)
+  4. Your guide appears with a green "📂 Auto" label
+
+For bilingual guides, use the naming convention:
+  my_guide_en.txt    ← English
+  my_guide_de.txt    ← German
+
+The hub pairs them automatically. If only one language exists,
+it is used for both.
+
+The guide title is generated from the filename:
+  my_cool_guide_en.txt  →  "My Cool Guide"
+
+The guides/ folder name is auto-detected. The hub checks for:
+  guides/  Guids/  Guides/  guids/
+
+
+ADDING CUSTOM GUIDES (via UI)
+─────────────────────────────
+Click "+ Add Guide" at the bottom of the Guides tab.
+
+Fill in:
+  • Title (English, required + optional German)
+  • Tags (comma-separated, for search)
+  • Related tools (comma-separated tool names)
+  • Content (type directly or load from a .txt/.md file)
+
+Both English and German content fields are available.
+
+
+SEARCH
+──────
+The search bar in the top bar searches across:
+  • Tool names and descriptions
+  • File format extensions and descriptions
+  • Guide titles and tags
+
+Type any keyword and the Tools and Guides tabs filter in real-time.
+Clear the search to show everything again.
+
+
+FILE FORMAT DATABASE
+────────────────────
+The hub documents all Two Worlds 1 file formats. When you search
+for a format extension (e.g. ".wd" or ".phx"), the tools that
+handle that format are highlighted.
+
+  .wd   — Mod archive (zlib, GUID). .phx must NOT be compressed!
+  .lan  — Language file (16,194 translations, binary, UTF-16-LE)
+  .par  — Parameter database (items, NPCs, skills, zlib-compressed)
+  .lnd  — Level/map (terrain, objects, spawns, 128x128 tiles)
+  .vdf  — 3D model (mesh, textures, animations)
+  .phx  — Physics/collision (cook in editor, never compress!)
+  .lhc  — LevelHeaders cache (regenerate after every map change)
+  .idx  — Quest data (SOAP-XML export from WhizzEdit)
+  .qtx  — Quest logic (plaintext, compiled for engine)
+  .shf  — WhizzEdit project (.NET binary, read-only in our tools)
+  .bmp  — Minimap image (one per map tile)
+
+
+SETTINGS
+────────
+Click the ⚙ Settings button in the top bar.
+
+  General:
+    • Language — English or German (affects UI + guides)
+    • Font Size — 8 to 18 (affects guide text)
+    • View Mode — Grid (square cards) or List
+    • Guides Folder — path to the guides directory
+
+  Tool Paths:
+    All registered tools are listed with their current path.
+    Green dot = found, hollow dot = not found.
+    For each tool you can:
+      • Browse (...) to set a custom path
+      • Clear (x) to reset the path
+
+Click Save to apply. Settings are stored in tw1_modding_hub.json.
+
+
+VIEW MODES
+──────────
+  Grid View (default):
+    Square cards in a 4-column layout. Compact display with icon,
+    name, short description, format tags, and action buttons.
+
+  List View:
+    Full-width cards with complete descriptions and related guide
+    links. Better for reading, worse for quick overview.
+
+Toggle with the Grid/List button in the top bar.
+
+
+LANGUAGE SWITCHING
+──────────────────
+Click the 🌐 EN/DE button in the top bar. This switches:
+  • The entire UI (buttons, labels, search placeholder)
+  • Tool descriptions
+  • Guide content (loads the _en or _de file)
+  • Credits text
+
+The language preference is saved in the config.
+
+
+CREDITS
+───────
+Click the Credits button in the top bar to see the full credits:
+
+  Buglord — wdio.py, Mod Selector, WD Repacker, format docs
+  JadetheReaper — Map Test EX.wd, Map-to-Mod documentation
+  Smoothness — Editor tutorials, dungeon creation workflow
+  MedievalDev — All Python tools and this hub
+  MedievalDev & Claude — All guides (EN + DE)
+  Reality Pump Studios — Two Worlds (2007)
+  TopWare Interactive — Publisher
+
+
+TROUBLESHOOTING
+───────────────
+
+Problem                          Solution
+───────────────────────────────  ─────────────────────────────────
+Hub window is too small          Drag to resize. The window starts
+                                 at 50% width, 65% height. Minimum
+                                 size is 800x400.
+
+Tool shows "Not Found"           Click "Set Path" and browse to the
+                                 .exe or .py file. The path is saved
+                                 permanently.
+
+Guides folder not detected       The hub checks for guides/, Guids/,
+                                 Guides/, guids/ next to the .py/.exe.
+                                 Or set a custom path in Settings.
+
+Guide shows fallback text        The .txt file is missing from the
+                                 guides folder. Re-download the guide
+                                 files and place them in the folder.
+
+New guide file not appearing     Make sure the file has a .txt or .md
+                                 extension. Restart the hub or switch
+                                 between tabs.
+
+Config file corrupted            Delete tw1_modding_hub.json and
+                                 restart. A fresh config is created
+                                 automatically.
+
+Tool launches but crashes        Check that Python 3.10+ is installed
+                                 and the tool's dependencies are met.
+                                 Some tools need specific pip packages.
+
+Search finds nothing             Try shorter keywords. Search checks
+                                 tool names, descriptions, format
+                                 extensions, and guide tags.
+
+
+================================================================================
+  TW1 Modding Hub v2.0 — by MedievalDev
+  Credits: Buglord, JadetheReaper, Smoothness
+================================================================================

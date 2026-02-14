@@ -1,0 +1,655 @@
+================================================================================
+  TWO WORLDS 1 — Dungeon-Erstellungsguide  ·  Teil 2: SDK Dungeon-Editor
+================================================================================
+
+ÜBERSICHT
+─────────
+Das TwoWorlds SDK (Version 1.3) enthält einen dedizierten Dungeon-
+Editor — ein eigenständiges Tool getrennt vom TwoWorldsEditor.exe.
+Dieses Tool wurde von den Originalentwicklern bei Reality Pump
+verwendet um alle Dungeons und Höhlen im Vanilla-Spiel zu erstellen.
+
+Der Dungeon-Editor arbeitet auf einem blockbasierten Rastersystem.
+Du entwirfst dein Dungeon-Layout durch Platzieren, Konfigurieren
+und Verbinden von Blöcken, dann generiert der Editor ein Konsolen-
+skript das du im TwoWorldsEditor-Hauptprogramm importierst um die
+eigentliche Untergrund-Level-Geometrie zu erzeugen.
+
+Der Workflow in Kurzform:
+
+  Dungeon-Editor  →  Layout entwerfen (Blöcke, Höhen, Typen, Objekte)
+                  →  Konsolenskript generieren (F5)
+                  →  TwoWorldsEditor auf leerem Untergrund-Level öffnen
+                  →  Generiertes Skript ausführen
+                  →  @edundgr.txt zum Finalisieren des Terrains
+                  →  Manuell zusätzliche Objekte & Marker platzieren
+                  →  Mit Oberflächen-Level verbinden (Upper/Lower)
+
+
+VORAUSSETZUNGEN
+───────────────
+• TwoWorldsSDK installiert (z.B. unter C:\Games\TwoWorldsSDK\)
+• Der Dungeons-Ordner im SDK enthält:
+    - Die Dungeon-Editor-Executable
+    - Beispieldaten im Dungeons\-Unterverzeichnis
+    - *scr.txt-Dateien (Konsolenskripte für den Haupteditor)
+    - dungeon.txt (Konfigurationsdatei für Blocktypen und Objekte)
+• TwoWorldsEditor.exe (der Hauptlevel-Editor, ebenfalls im SDK)
+• Two Worlds Epic Edition (zum Testen)
+• Das Game\-Verzeichnis aus dem SDK muss ins Spielverzeichnis
+  kopiert werden (enthält Konsolenskripte die der Editor braucht)
+
+
+ORDNERSTRUKTUR
+──────────────
+SDK Dungeons-Verzeichnis:
+
+  TwoWorldsSDK\
+  ├── Dungeons\
+  │   ├── Dungeons\          ← Beispiel-Dungeon-Daten
+  │   │   ├── dungeon.txt    ← Konfigurationsdatei (Blocktypen, Objekte)
+  │   │   └── (Beispieldateien)
+  │   └── *scr.txt           ← Fertige Konsolenskripte für den Editor
+  ├── Tools\
+  │   └── TwoWorldsEditor.exe
+  └── Game\
+      └── (Konsolenskripte — ins Spielverzeichnis kopieren)
+
+
+================================================================================
+  ABSCHNITT 1 — TASTENBELEGUNG
+================================================================================
+
+Der Dungeon-Editor verwendet einfache Tastatur- und Maussteuerung.
+Alle Hauptfunktionen sind auf Funktionstasten gelegt.
+
+  Taste            Funktion
+  ───────────────  ─────────────────────────────────────────────────
+  Tab              Zum nächsten Editor-Modus wechseln
+                   Der Editor hat 4 Hauptmodi zum Durchschalten:
+                     1. Setting Dungeons Mode  (Block-Layout)
+                     2. Setting Height Mode    (Vertikale Positionierung)
+                     3. Setting Dungeons Type  (Visueller Stil/Tileset)
+                     4. Setting Objects Mode   (Objekt-Platzierung)
+                   Jeder Tab-Druck wechselt zum nächsten Modus.
+
+  F2               Dungeon in Datei speichern
+                   Speichert das aktuelle Design zur späteren
+                   Weiterbearbeitung.
+
+  F3               Dungeon aus Datei laden
+                   Öffnet ein zuvor gespeichertes Dungeon-Design.
+
+  F4               Offset für Map setzen
+                   Definiert den Positions-Offset wo der Dungeon auf
+                   dem Untergrund-Level platziert wird. Steuert die
+                   Position auf dem Level-Raster.
+
+  F5               Konsolenskript für Editor generieren
+                   DER ZENTRALE AUSGABE-SCHRITT. Der Dungeon-Editor
+                   konvertiert dein gesamtes Design in ein textbasiertes
+                   Konsolenskript (.txt) das im TwoWorldsEditor mit
+                   dem @-Befehl ausgeführt werden kann.
+
+  F6               "Alten" Dungeon laden
+                   Lädt einen Dungeon im älteren/Legacy-Format.
+                   Nützlich zum Inspizieren originaler Vanilla-Dungeons.
+
+  F8               Alles zurücksetzen
+                   Löscht das gesamte Design. Kann NICHT rückgängig
+                   gemacht werden — mit Vorsicht verwenden!
+
+  Escape           Editor beenden / schließen
+
+  Bild auf         Hineinzoomen
+  Bild ab          Herauszoomen
+
+  Pfeiltasten      Ansicht verschieben / scrollen
+
+
+================================================================================
+  ABSCHNITT 2 — MODUS 1: SETTING DUNGEONS MODE  (Block-Layout)
+================================================================================
+
+Der primäre Design-Modus in dem du den Grundriss des Dungeons durch
+Platzieren und Entfernen von Blöcken auf einem 2D-Raster erstellst.
+
+STEUERUNG
+─────────
+  Linke Maustaste     Block platzieren / zeichnen
+  Rechte Maustaste    Block entfernen
+
+Blöcke sind die grundlegenden Bausteine eines Dungeons. Jeder Block
+repräsentiert einen Abschnitt Dungeon-Geometrie (Raum, Korridor,
+Kreuzung, etc.). Blöcke rasten am Raster ein und müssen korrekt
+mit ihren Nachbarn verbunden sein.
+
+BLOCK-VARIANTEN
+───────────────
+Viele Blöcke haben mehrere visuelle Varianten. Wenn ein Block mehr
+als eine Version hat, kann man durch Linksklick auf einen bereits
+platzierten Block die Varianten durchschalten.
+
+FEHLER-INDIKATOREN
+──────────────────
+Der Editor verwendet ein farbkodiertes System um Probleme anzuzeigen.
+Alle Fehler müssen vor dem Generieren eines gültigen Skripts behoben
+werden.
+
+  Farbe           Bedeutung                    Lösung
+  ──────────────  ──────────────────────────  ─────────────────────────
+  Rot             Ungültige Block-             Andere Variante probieren
+                  Konfiguration. Kein          (klicken zum Durchschalten)
+                  passendes Blockset           oder Nachbarblöcke
+                  vorhanden.                   umordnen.
+
+  Grün            Lücke im Layout.             Ein Block muss hinzugefügt
+                  Blöcke müssen ergänzt        werden um die Lücke zu
+                  werden.                      füllen.
+
+  Blau / Violett  Block-Überlappung.           Einer der beiden Blöcke
+                  Ein Block sitzt auf          muss verschoben oder
+                  einem anderen.               entfernt werden.
+
+TIPP: Von einem zentralen Punkt nach außen arbeiten. Zuerst die
+Haupträume platzieren, dann mit Korridoren verbinden. Häufig auf
+Fehler prüfen.
+
+
+================================================================================
+  ABSCHNITT 3 — MODUS 2: SETTING HEIGHT MODE  (Vertikale Positionierung)
+================================================================================
+
+Wenn das Block-Layout fertig ist, in den Height Mode wechseln
+(Tab drücken) um die vertikale Höhe jedes Blocks zu steuern. So
+kann man mehrstöckige Dungeons mit Treppen, Rampen und Höhen-
+übergängen erstellen.
+
+STEUERUNG
+─────────
+  Linke Maustaste    Auf einen Block klicken um dessen Höhen-
+                     Varianten durchzuschalten. Jeder Klick wechselt
+                     zum nächsten verfügbaren Höhenwert.
+
+ANZEIGE LESEN
+─────────────
+Jeder Block zeigt einen Zahlenwert für seine Höhe (Elevation).
+Die Textfarbe zeigt ob der Block die Höhe ändern kann:
+
+  Textfarbe       Bedeutung
+  ──────────────  ──────────────────────────────────────────────────
+  Weiß            Fixe Höhe — dieser Block unterstützt keine
+                  Höhenänderung. Elevation ist gesperrt.
+
+  Gelb            Variable Höhe — dieser Block unterstützt
+                  Höhenänderungen. Klicken zum Durchschalten.
+                  Gelbe Blöcke für Höhenübergänge nutzen.
+
+FEHLER-INDIKATOREN
+──────────────────
+  Farbe           Bedeutung                    Lösung
+  ──────────────  ──────────────────────────  ─────────────────────────
+  Violett         Höhen-Mismatch an einer      Block-Variante oder Höhen-
+                  Block-Verbindung, ODER       wert eines Nachbarblocks
+                  Dungeon überschreitet die    ändern bis das Violett
+                  maximal erlaubte Höhe.       verschwindet. Bei zu hohem
+                                               Dungeon: Blöcke absenken.
+
+DESIGN-TIPPS
+────────────
+• Benachbarte Blöcke müssen an Verbindungspunkten übereinstimmende
+  Höhen haben.
+• Höhenänderungen im Voraus planen — eine grobe Seitenansicht-
+  Skizze hilft.
+• Gelbe (variable) Blöcke an Übergangspunkten verwenden.
+• Die Game-Engine hat eine maximale Dungeon-Höhe.
+
+
+================================================================================
+  ABSCHNITT 4 — MODUS 3: SETTING DUNGEONS TYPE MODE  (Visueller Stil)
+================================================================================
+
+In diesem Modus weist man jedem Block oder jeder Blockgruppe ein
+visuelles Thema (Tileset) zu. Verschiedene Dungeon-Typen nutzen
+unterschiedliche Geometrie, Texturen und Beleuchtung — z.B. "DUN"
+für Steinmauern oder "CAVE" für natürliche Höhlenformationen.
+
+STEUERUNG
+─────────
+  Linke Maustaste     Einzelnen Block auswählen
+  Rechte Maustaste    Blockgruppe auswählen (Bereichsauswahl)
+  Mausrad             Dungeon-Typ durchschalten
+
+VISUELLE RÜCKMELDUNG
+────────────────────
+Ausgewählte Blöcke werden entsprechend ihrem zugewiesenen Dungeon-
+Typ eingefärbt. Jeder Typ hat seine eigene RGB-Farbe definiert in
+der dungeon.txt (siehe Abschnitt 6).
+
+TYPEN MISCHEN
+─────────────
+Du kannst verschiedene Dungeon-Typen verschiedenen Blöcken innerhalb
+desselben Dungeons zuweisen. So können Dungeons erstellt werden die
+von einem Stil in einen anderen übergehen — z.B. ein Stein-Dungeon-
+Eingang der in ein natürliches Höhlensystem übergeht.
+
+Hinweis: Übergänge zwischen verschiedenen Typen sehen nicht immer
+nahtlos aus. Gemischte Dungeons im Spiel testen.
+
+
+================================================================================
+  ABSCHNITT 5 — MODUS 4: SETTING OBJECTS MODE  (Objekt-Platzierung)
+================================================================================
+
+Der Objects Mode erlaubt das Platzieren dekorativer Objekte,
+Lichtquellen und anderer Props im Dungeon. Die verfügbaren Objekte
+sind in der dungeon.txt als "Addons"-Gruppen definiert.
+
+STEUERUNG
+─────────
+  Linke Maustaste              Objekt an Cursorposition einfügen
+
+  Linke Maustaste + Strg       Objekttyp aufnehmen ("Pipette")
+                                Auf ein existierendes Objekt klicken
+                                um dessen Typ als aktuelle Auswahl
+                                zu übernehmen.
+
+  Linke Maustaste + Shift      Zuletzt eingefügtes Objekt entfernen
+
+  Linke Maustaste + Shift      ALLE Objekte des aktuell gewählten
+  + Strg                       Typs entfernen. Mit Vorsicht — betrifft
+                                jede Instanz im gesamten Dungeon.
+
+  Mausrad                       Objekttyp wechseln (durch verfügbare
+                                Typen scrollen)
+
+OBJEKT-EIGENSCHAFTEN
+────────────────────
+Jedes Objekt in der dungeon.txt hat diese Eigenschaften:
+
+  Eigenschaft   Beschreibung
+  ────────────  ──────────────────────────────────────────────────
+  Name          Anzeigename im Editor
+  ObjectID      Parameter-ID aus Two Worlds' Daten — verknüpft
+                das Editor-Objekt mit dem eigentlichen Spielobjekt
+  MeshType      Typ des 3D-Meshes für die Darstellung
+  Bitmap        2D-Bild im Editor (da der Dungeon-Editor 2D ist)
+  Range         Lichtreichweite — wenn nicht 0, wird das Objekt
+                als Lichtquelle mit der angegebenen Reichweite
+                behandelt
+  R G B         Lichtfarbe (nur wenn Range > 0) — definiert die
+                Farbe des emittierten Lichts
+
+BELEUCHTUNGSOBJEKTE
+───────────────────
+Objekte mit Range > 0 sind Lichtquellen. Beim Platzieren emittieren
+sie im Spiel Licht mit der angegebenen Farbe und Reichweite.
+Dungeons sind ohne Lichtquellen komplett dunkel!
+
+TIPP: Lichter großzügig platzieren, besonders an Kreuzungen,
+Schatztruhen und Eingangs-/Ausgangspunkten.
+
+
+================================================================================
+  ABSCHNITT 6 — KONFIGURATIONSDATEI: dungeon.txt
+================================================================================
+
+Die dungeon.txt ist das Herz des Dungeon-Editors. Sie definiert
+welche Dungeon-Typen existieren, welche visuellen Blöcke sie nutzen
+und welche Objekte platziert werden können. Liegt im Dungeons\-
+Unterverzeichnis des SDK.
+
+Die Datei hat zwei Definitionstypen: Addons (Objektgruppen) und
+Dungeon (Dungeon-Typ-Definitionen).
+
+
+ADDONS-DEFINITION — Objektgruppen
+──────────────────────────────────
+Addons definieren Gruppen platzierbarer Objekte. Jede Gruppe enthält
+Objekte die einem thematischen Zweck dienen (z.B. "Fackeln", "Fässer",
+"Höhlenformationen").
+
+  Syntax:
+
+  Addons GruppenName {
+
+      Name1 ObjectID1 MeshType1 Bitmap1 Range1 [R G B]
+      Name2 ObjectID2 MeshType2 Bitmap2 Range2 [R G B]
+      ...
+
+  }
+
+  Feldübersicht:
+
+  GruppenName   Name der Addons-Gruppe. Wird in Dungeon-Definitionen
+                referenziert.
+  NameX         Anzeigename des einzelnen Objekts
+  ObjectIDX     Parameter-ID die zum Spielobjekt in TwoWorlds.par
+                verknüpft
+  MeshTypeX     Mesh-Typ für die Darstellung
+  BitmapX       Dateiname des 2D-Bitmaps im Editor
+  RangeX        Lichtreichweite (0 = kein Licht, >0 = Lichtquelle)
+  [R G B]       Optional: Lichtfarbe (0-255 pro Kanal)
+
+  Beispiel:
+
+  Addons DungeonLichter {
+
+      Wandfackel   OBJ_TORCH_WALL_01   3  torch_icon.bmp   12  255 200 100
+      Feuerschale  OBJ_BRAZIER_01      2  brazier_icon.bmp  8  255 150  50
+      Magiekristall OBJ_CRYSTAL_GLOW_01 1  crystal_icon.bmp 16   50 100 255
+
+  }
+
+
+DUNGEON-DEFINITION — Dungeon-Typen
+───────────────────────────────────
+Dungeon-Definitionen beschreiben die verfügbaren Themen/Tilesets.
+Jeder Typ verknüpft mit einem spezifischen Geometrie-Blockset und
+gibt an welche Addons-Gruppen verfügbar sind.
+
+  Syntax:
+
+  Dungeon TypName BlocksName BlocksNummer R G B {
+
+      AddonsGruppe1
+      AddonsGruppe2
+      ...
+
+  }
+
+  Feldübersicht:
+
+  TypName        Anzeigename des Dungeon-Typs
+  BlocksName     Name der Geometrie-Blockgruppe (z.B. "DUN", "CAVE")
+  BlocksNummer   Variante innerhalb der Blockgruppe (z.B. "01", "07b")
+  R G B          Editor-Anzeigefarbe (0-255 pro Kanal)
+  AddonsGruppeX  Namen der für diesen Typ verfügbaren Addons-Gruppen
+
+  Beispiel:
+
+  Dungeon SteinDungeon DUN 01 180 180 200 {
+
+      DungeonLichter
+      DungeonMöbel
+      DungeonFallen
+
+  }
+
+  Dungeon NatürlicheHöhle CAVE 07b 100 150 100 {
+
+      HöhlenLichter
+      HöhlenFormationen
+      HöhlenKreaturen
+
+  }
+
+BEARBEITUNGSTIPPS
+─────────────────
+• Die existierende dungeon.txt aus dem SDK studieren bevor
+  Änderungen gemacht werden.
+• dungeon.txt vor dem Bearbeiten sichern — Syntaxfehler verhindern
+  das Laden des Dungeon-Editors.
+• Object-IDs müssen gültige Einträge in TwoWorlds.par/xls sein.
+• Eigene Addons-Gruppen erstellen und in mehreren Dungeon-
+  Definitionen referenzieren.
+
+
+================================================================================
+  ABSCHNITT 7 — DAS LEVEL ERSTELLEN  (Vom Editor ins Spiel)
+================================================================================
+
+Kompletter Workflow vom fertigen Design zum spielbaren Untergrund-Level.
+
+
+SCHRITT 1 — Konsolenskript generieren
+──────────────────────────────────────
+Wenn das Dungeon-Design fertig ist (alle Fehler in allen vier Modi
+behoben), F5 drücken um das Konsolenskript zu generieren.
+
+Vorher bei Bedarf F4 für den Map-Offset verwenden — bestimmt wo
+auf dem Untergrund-Level die Geometrie positioniert wird.
+
+
+SCHRITT 2 — Leeres Untergrund-Level vorbereiten
+────────────────────────────────────────────────
+TwoWorldsEditor.exe öffnen und neues Level erstellen:
+
+  1. Datei → Neu
+  2. Tools → Properties
+  3. Level Name und File Name setzen
+  4. "Underground Level" Checkbox AKTIVIEREN
+  5. Size auf Medium (128x128) setzen
+  6. OK klicken
+
+Das Level muss frisch und leer sein — das Skript erwartet eine
+leere Fläche.
+
+
+SCHRITT 3 — Generiertes Skript ausführen
+─────────────────────────────────────────
+Konsole im TwoWorldsEditor öffnen (C-Taste) und ausführen:
+
+  @dein_dungeon_skript.txt
+
+Die Dungeon-Geometrie erscheint auf dem Untergrund-Level.
+
+
+SCHRITT 4 — Untergrund-Finalisierungsskript ausführen
+─────────────────────────────────────────────────────
+Das Terrain muss korrekt als begehbar/unbegehbar markiert werden:
+
+  Editor.FillWorldWithColor 0xFFFFFFFF
+  @edundgr.txt
+
+KRITISCH: Teleport-Marker müssen vorher platziert sein!
+(MARKER_TELEPORT_DEST_FROMUPPER und/oder FROMLOWER)
+
+
+SCHRITT 5 — Zusätzliche Objekte und Marker platzieren
+──────────────────────────────────────────────────────
+Im TwoWorldsEditor manuell hinzufügen:
+
+  • Teleport-Marker (Dest_from_upper, Dest_from_lower)
+  • Zusätzliche Spawner-Marker für Feinde
+  • Truhen und Loot-Behälter
+  • Zusätzliche Lichtquellen (über die im Dungeon-Editor platzierten
+    hinaus)
+  • Dekorative Objekte und Umgebungsdetails
+
+Dann:
+  • Alt+U — Terrain Passing aktualisieren
+  • Alt+W — Walkable Objects aktualisieren
+
+
+SCHRITT 6 — Physik kochen
+──────────────────────────
+  editor.cookphysx.mode geomipmap
+  editor.cookphysx.strength = 1.0
+  editor.cookphysx.overwrite = 1
+  editor.cookphysx.pc out
+
+WICHTIG: .phx darf im .wd-Archiv NICHT komprimiert werden!
+
+
+SCHRITT 7 — Mit Oberfläche verbinden
+─────────────────────────────────────
+Auf dem Untergrund-Level:
+  • Properties → "Upper" = Oberflächen-Map-Dateiname
+  • Cave Exit Prop + Dest_from_upper Marker platzieren
+
+Auf dem Oberflächen-Level:
+  • Properties → "Lower" = Untergrund-Map-Dateiname
+  • Cave Entrance Prop + Dest_from_lower Marker platzieren
+
+
+SCHRITT 8 — Mod bauen und testen
+─────────────────────────────────
+Standard Map-zu-Mod Workflow:
+  1. LevelHeaders neu generieren (LevelHeadersCacheGen.bat)
+  2. Dateien kopieren & umbenennen ("s"-Suffix entfernen)
+  3. Mit wdio.py in .wd packen
+  4. Im Mods\-Ordner ablegen
+  5. Mit Mod Selector oder Registry aktivieren
+  6. NEUES Spiel starten zum Testen
+
+
+================================================================================
+  ABSCHNITT 8 — KONSOLENBEFEHL-REFERENZ
+================================================================================
+
+TERRAIN-FARBE
+─────────────
+  Editor.FillWorldWithColor 0xFFFFFFFF         Weiß füllen
+  Editor.FillWorldWithColor 0xFF000000         Schwarz füllen
+  Editor.ReplaceColor alt neu                  Farbe ersetzen
+  Editor.ReplaceColorOnDisabledTerrain alt neu range
+    Farbe nur auf deaktiviertem Terrain ersetzen.
+
+BEGEHBARKEITS-BEFEHLE
+─────────────────────
+  editor.LabelNotDisabledPassableFromMarkers MARKER1 MARKER2 ...
+    Begehbares Terrain von Markern aus berechnen. Alles nicht
+    erreichbare Terrain wird deaktiviert. Kernbefehl für
+    Untergrund-Level.
+
+  Editor.ClearDisabled
+    Alle Deaktiviert-Flags zurücksetzen.
+
+STAPELAUSFÜHRUNG
+────────────────
+  Editor.foreachundergroundlevel @skript.txt
+    Skript auf jedem Untergrund-Level ausführen.
+
+  Editor.foreachsurfacelevel @skript.txt
+    Skript auf jedem Oberflächen-Level ausführen.
+
+  editor.savelevel
+    Aktuelles Level speichern.
+
+
+================================================================================
+  ABSCHNITT 9 — REFERENZ: edundgr.txt
+================================================================================
+
+Das edundgr.txt-Skript ist kritisch für die Untergrund-Finalisierung:
+
+  ┌─────────────────────────────────────────────────────────────────┐
+  │ Datei: edundgr.txt                                              │
+  ├─────────────────────────────────────────────────────────────────┤
+  │                                                                 │
+  │ Editor.ReplaceColor 0xFF000000 0xFFFFFFFF                       │
+  │   → Reset: Schwarz durch Weiß ersetzen                         │
+  │                                                                 │
+  │ editor.LabelNotDisabledPassableFromMarkers                      │
+  │     MARKER_TELEPORT_DEST_FROMUPPER                              │
+  │     MARKER_TELEPORT_DEST_FROMLOWER                              │
+  │   → Begehbarkeit von Teleport-Markern aus berechnen             │
+  │                                                                 │
+  │ Editor.ReplaceColorOnDisabledTerrain 0xFFFFFFFF 0xFF000000 4    │
+  │   → Unerreichbares Terrain schwarz malen (4 = Kantenübergang)   │
+  │                                                                 │
+  │ editor.savelevel                                                │
+  │   → Level speichern                                             │
+  │                                                                 │
+  └─────────────────────────────────────────────────────────────────┘
+
+  Auf einem Level:       @edundgr.txt
+  Auf allen UG-Leveln:   Editor.foreachundergroundlevel @edundgr.txt
+  Vorher initialisieren: Editor.foreachundergroundlevel Editor.FillWorldWithColor 0xFFFFFFFF
+
+
+================================================================================
+  ABSCHNITT 10 — FEHLERBEHEBUNG
+================================================================================
+
+Problem                           Lösung
+────────────────────────────────  ──────────────────────────────────────
+Dungeon-Editor startet nicht      Dungeons\-Unterverzeichnis mit Daten
+                                  und dungeon.txt vorhanden? DLLs aus
+                                  Spielverzeichnis erreichbar?
+
+Rote Blöcke (Dungeons-Modus)      Ungültige Konfiguration. Variante
+                                  durchschalten oder Nachbarn umordnen.
+
+Grüne Blöcke (Dungeons-Modus)     Lücken im Layout. Blöcke hinzufügen
+                                  um alle Lücken zu füllen.
+
+Violette Blöcke (Height-Modus)    Höhen-Mismatch an Verbindungen.
+                                  Höhenvariante eines Nachbarblocks
+                                  ändern. Gesamthöhe prüfen.
+
+Skript erzeugt keine Geometrie    Level als "Underground Level" in
+                                  Properties markiert? Skript-Dateipfad
+                                  korrekt bei @dateiname.txt?
+
+Spieler fällt durch Boden         PhysX nicht gekocht. cookphysx-Befehle
+                                  ausführen. .phx unkomprimiert im .wd?
+
+Dungeon komplett schwarz nach     Teleport-Marker fehlten. Marker
+edundgr.txt                       platzieren, dann @edundgr.txt erneut.
+
+Dungeon sichtbar aber dunkel      Lichtquellen (Fackeln, Feuerschalen)
+                                  platzieren. Kein Umgebungslicht
+                                  standardmäßig.
+
+Addons-Objekte nicht verfügbar    dungeon.txt-Syntax prüfen. Addons-
+                                  Gruppenname muss exakt mit Referenz
+                                  in Dungeon-Definition übereinstimmen.
+
+Alter Dungeon lädt nicht (F6)     Altes Format ggf. inkompatibel. Neuen
+                                  Dungeon nach altem Design erstellen.
+
+
+================================================================================
+  ABSCHNITT 11 — SCHNELLREFERENZ-KARTE
+================================================================================
+
+DUNGEON-EDITOR TASTEN
+─────────────────────
+  Tab ............. Nächster Modus
+  F2 .............. Speichern
+  F3 .............. Laden
+  F4 .............. Map-Offset setzen
+  F5 .............. Skript generieren
+  F6 .............. Alten Dungeon laden
+  F8 .............. Alles zurücksetzen
+  Esc ............. Beenden
+  BildAuf/Ab ...... Zoom
+  Pfeiltasten ..... Verschieben
+
+MODUS 1: DUNGEONS (Layout)
+───────────────────────────
+  LMB ............. Block platzieren
+  RMB ............. Block entfernen
+  LMB auf Block ... Variante durchschalten
+  Fehler: Rot=ungültig  Grün=Lücke  Blau/Violett=Überlappung
+
+MODUS 2: HEIGHT (Elevation)
+────────────────────────────
+  LMB auf Block ... Höhenvariante durchschalten
+  Weißer Text ..... Fixe Höhe
+  Gelber Text ..... Variable Höhe
+  Fehler: Violett=Mismatch oder zu hoch
+
+MODUS 3: TYPE (Tileset)
+────────────────────────
+  LMB ............. Einzelnen Block wählen
+  RMB ............. Gruppe wählen
+  Mausrad ......... Typ wechseln
+  Farben = Dungeon-Typ-Farben aus dungeon.txt
+
+MODUS 4: OBJECTS (Props)
+─────────────────────────
+  LMB ............. Objekt platzieren
+  Strg+LMB ........ Typ von Bestehendem aufnehmen
+  Shift+LMB ....... Zuletzt Platziertes entfernen
+  Shift+Strg+LMB .. Alle des gewählten Typs entfernen
+  Mausrad ......... Objekttyp wechseln
+
+
+================================================================================
+  Quellen: Reality Pump SDK 1.3 Dokumentation (Dungeons readme.txt,
+           _info_.txt, Editor console.txt)
+  Erstellt für das TW Editor Community-Dokumentationsprojekt
+================================================================================
