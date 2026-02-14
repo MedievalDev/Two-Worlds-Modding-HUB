@@ -25,8 +25,8 @@ The TW1 Modding Hub provides a single entry point for the entire Two Worlds 1 mo
 
 ## Screenshot
 
-<img src="https://alchimist-sotw.de/github/Hub1.png" width="800">
-<img src="https://alchimist-sotw.de/github/Hub2.png" width="800">
+<img src="https://alchimist-sotw.de/github/Hub1.png" width="600">
+<img src="https://alchimist-sotw.de/github/Hub2.png" width="600">
 
 ---
 
