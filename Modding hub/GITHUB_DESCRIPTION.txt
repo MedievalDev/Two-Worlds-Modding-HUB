@@ -1,1 +1,0 @@
-Central hub for Two Worlds 1 modding — 11 tools with auto-detection & download links, 6+ bilingual guides (EN/DE) with auto-discovery, full file format documentation (.wd .lan .par .lnd .vdf .phx), search, settings, and extensibility. Drop new guides into the folder and they appear automatically.
