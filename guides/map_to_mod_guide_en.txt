@@ -1,0 +1,202 @@
+================================================================================
+  TWO WORLDS 1 — Map to Mod Conversion (Compact Guide)
+================================================================================
+
+OVERVIEW
+────────
+Custom maps created in the TwoWorlds Editor are stored as save files.
+For the game to load them as a mod, they need to be packed into a .wd
+archive and activated in the Windows registry.
+
+Short version of the process:
+
+  Editor map  →  Cook PhysX  →  Generate LevelHeaders
+            →  Copy & rename files  →  Pack .wd
+            →  Activate in registry  →  Start new game
+
+
+REQUIREMENTS
+────────────
+• TwoWorldsSDK (e.g. at C:\Games\TwoWorldsSDK\)
+• Two Worlds Epic Edition (Steam or standalone)
+• Buglord's tools: wdio.py (WD packer), TwoWorlds1 Mod Selector
+• Python 3.10+ (for wdio.py)
+
+
+FOLDER STRUCTURE
+────────────────
+SDK:
+  TwoWorldsSDK\
+  ├── TwoWorldsEditor.exe
+  ├── Tools\
+  │   ├── MeshParamsGen.exe
+  │   ├── LevelHeadersCacheGen.bat
+  │   └── tw_editor_cmd_injector.py   ← Our tool
+  └── Levels\
+
+Game:
+  Two Worlds - Epic Edition\
+  ├── TwoWorlds.exe
+  ├── TwoWorlds1 Mod Selector.exe     ← Buglord's mod activator
+  └── Mods\                           ← Capital M!
+      └── MyMod.wd
+
+Saves:
+  %USERPROFILE%\Saved Games\Two Worlds Saves\
+  └── Levels\
+      ├── Map_F01s.bmp                ← Minimap image
+      ├── Map_F01s.lnd                ← Terrain + objects + spawns
+      └── Physic\
+          └── Map_F01s.phx            ← Collision data
+
+
+STEP 1 — Cook PhysX (in the Editor)
+────────────────────────────────────
+Open the console in the editor (C key) and enter one by one:
+
+  editor.cookphysx.mode geomipmap
+  editor.cookphysx.strength = 1.0
+  editor.cookphysx.overwrite = 1
+  editor.cookphysx.pc out
+
+Wait until the cook process is complete.
+The .phx file will be written to the Saves/Physic folder.
+
+IMPORTANT: The .phx file must NOT be compressed!
+Old/other WD packers compress .phx files → game crash.
+Only use Buglord's wdio.py or his WD Repacker.
+
+
+STEP 2 — Generate LevelHeaders
+───────────────────────────────
+Run LevelHeadersCacheGen.bat in the Tools folder.
+It internally calls:
+
+  MeshParamsGen.exe "C:\Games\TwoWorlds/>" -levelheaderscache
+    "Levels\Map_*.lnd" "Levels\Map_LevelHeaders.lhc"
+
+The path in the BAT file must match your own game directory!
+Result: Map_LevelHeaders.lhc is generated (index of all maps).
+This file must be regenerated after EVERY map change.
+
+
+STEP 3 — Prepare mod folder
+────────────────────────────
+Create the following structure in the game's Mods folder:
+
+  Mods\
+  └── MyMod\                ← Any name you choose
+      └── Levels\
+          ├── Map_F01.lnd
+          ├── Map_F01.bmp
+          ├── Map_LevelHeaders.lhc
+          └── physic\
+              └── Map_F01.phx
+
+IMPORTANT — Rename the files!
+  Editor saves:   Map_F01s.lnd,  Map_F01s.bmp,  Map_F01s.phx
+  Mod needs:      Map_F01.lnd,   Map_F01.bmp,   Map_F01.phx
+
+The "s" (and everything after the first 2 digits) must be removed!
+The names must exactly match the vanilla filenames, because the
+.wd archive overrides the original files in the game.
+
+File sources:
+  .bmp + .lnd  →  from Saves\Levels\
+  .phx         →  from Saves\Levels\Physic\
+  .lhc         →  from SDK\Levels\ or Game\Levels\
+
+
+STEP 4 — Pack into .wd archive
+───────────────────────────────
+Using Buglord's wdio.py (version 1 = TW1 format 0x200):
+
+  python wdio.py pack -v 1 -o "Mods\MyMod" "Mods\MyMod.wd"
+
+Source       = The folder containing Levels\ + physic\
+Destination  = The finished .wd file
+
+Alternative: Buglord's Tw1WDRepacker.exe (GUI tool)
+  Source:      Select the "MyMod" folder (NOT the .wd!)
+  Destination: Mods folder
+  → Click Pack
+
+The folder name becomes the .wd filename.
+The .wd file must be placed in the game's Mods folder.
+
+Note: .phx files can be large — for testers consider external
+file sharing services instead of Discord (8 MB limit).
+
+
+STEP 5 — Activate mod (Registry)
+─────────────────────────────────
+Two Worlds 1 uses the Windows registry to toggle mods on/off:
+
+  Path:  HKEY_CURRENT_USER\SOFTWARE\Reality Pump\TwoWorlds\Mods
+  Value: <filename>.wd  (e.g. "MyMod.wd")
+  Type:  REG_DWORD
+  Data:  1 = active, 0 = inactive
+
+Easiest method: Buglord's "TwoWorlds1 Mod Selector.exe"
+  → Must be in the game directory (next to TwoWorlds.exe)
+  → Automatically finds .wd files in the Mods folder
+  → Red = inactive, press Enter → Green = active
+
+Alternative: Manually via regedit or with a Python script:
+
+  import winreg
+  key = winreg.CreateKey(winreg.HKEY_CURRENT_USER,
+        r"SOFTWARE\Reality Pump\TwoWorlds\Mods")
+  winreg.SetValueEx(key, "MyMod.wd", 0, winreg.REG_DWORD, 1)
+  winreg.CloseKey(key)
+
+
+STEP 6 — Play
+──────────────
+ALWAYS start a new game! Loading existing saves will use the old
+maps from the savegame — your changes would be invisible.
+
+
+TROUBLESHOOTING
+───────────────
+Problem                          Solution
+───────────────────────────────  ────────────────────────────────
+Game crashes on load             .phx was compressed → Only use
+                                 Buglord's wdio.py/Repacker
+
+Map loads without changes        Start a new game, don't load
+
+Mod not recognized               Check registry entry (=1?)
+                                 Is .wd in the Mods\ folder?
+
+No collision on terrain          PhysX not cooked → Step 1
+
+Buildings/NPCs missing on map   LevelHeaders outdated → Step 2
+                                 regenerate
+
+Minimap shows old map            .bmp not copied/renamed
+
+"Input is not an existing        In the Repacker, select the
+ folder" in Repacker             FOLDER as source, not the .wd!
+
+
+TECHNICAL DETAILS
+─────────────────
+WD archive format (version 0x200 / TW1):
+  • Compressed header: 0xFFA1D031 + "WD" + version + 128bit GUID
+  • Directory at end of file (zlib-compressed)
+  • Each file has: path, flags, offset, compressed/uncompressed size
+  • Flags determine compression: 0x01 = compressed, 0x00 = raw
+  • .phx files are ALWAYS stored uncompressed (Flags=0)
+  • GUID uniquely identifies the archive
+
+Registry mechanism (from Buglord's Mod Selector ASM source):
+  • RegCreateKeyExA opens HKCU\SOFTWARE\Reality Pump\TwoWorlds\Mods
+  • Each .wd filename is a value name (REG_DWORD)
+  • The game checks on startup which mods are set to 1
+  • Mod Selector toggles between 0 and 1 with Enter
+
+================================================================================
+  Sources: JadetheReaper (Discord TW Community), Buglord (wdio.py, Mod Selector)
+  Compiled for the TW Editor CMD Injector project
+================================================================================

@@ -1,0 +1,845 @@
+================================================================================
+  TWO WORLDS 1 — Dungeon Creation Guide  ·  Part 1: Manual Method
+================================================================================
+
+OVERVIEW
+────────
+This guide covers the manual method for creating dungeons (caves,
+underground levels) in Two Worlds 1 using the TwoWorldsEditor. This
+approach was reverse-engineered by the TW modding community (credited
+to Smoothness) by studying how the original developers at Reality Pump
+built the vanilla dungeons.
+
+Instead of using the SDK's dedicated Dungeon Editor tool (covered in
+Part 2 of this guide), this method works entirely within the main
+TwoWorldsEditor. You create a new underground level, load an existing
+cave template for terrain and textures, then manually place objects,
+markers and link everything to the surface map.
+
+This method is still experimental — it was figured out through trial
+and error, and some things may not always work as expected. Consider
+this a living document that will be updated as the community discovers
+more.
+
+  Surface map (with entrance)  ←→  Underground map (the dungeon)
+        ↓                                ↓
+  Cave Entrance prop               Cave Exit prop
+  Dest_from_lower marker           Dest_from_upper marker
+  Properties: Lower = dungeon      Properties: Upper = surface
+
+
+HOW DUNGEONS WORK IN TWO WORLDS
+────────────────────────────────
+In Two Worlds, the game world is made up of many individual map tiles
+(levels). Each surface map tile can have an associated underground
+level linked to it. The game handles the transition between surface
+and underground through a system of markers and props:
+
+  Surface side:
+    • A visible entrance prop (e.g. a cave mouth, dungeon door)
+    • A teleport destination marker near it (Dest_from_lower)
+    • The level's Properties link "Lower" pointing to the underground
+
+  Underground side:
+    • A visible exit prop (e.g. a cave exit, ladder, portal)
+    • A teleport destination marker near it (Dest_from_upper)
+    • The level's Properties link "Upper" pointing to the surface
+
+When the player enters a cave entrance in-game, the engine reads
+these markers and the Upper/Lower connection to teleport the player
+between the two levels.
+
+Each map tile in the game world follows a grid naming convention
+(e.g. Map_E01, Map_F03). Underground levels are separate .lnd files
+that are linked to their parent surface tile.
+
+
+REQUIREMENTS
+────────────
+• TwoWorldsSDK (e.g. at C:\Games\TwoWorldsSDK\)
+• Two Worlds Epic Edition (Steam or standalone)
+• Buglord's tools: wdio.py (WD packer), TwoWorlds1 Mod Selector
+• Python 3.10+ (for wdio.py)
+• Basic familiarity with the TwoWorldsEditor
+  (see the TW1 Editor Beginner Guide for fundamentals)
+
+
+================================================================================
+  STEP 1 — Prepare Your Surface Map (The Entrance)
+================================================================================
+
+Before creating the dungeon itself, you need to set up an entrance
+on your surface-level map. This is what the player will see and
+interact with to enter the dungeon.
+
+Open your surface map in the TwoWorldsEditor and switch to Object
+Placement mode (the Objects button on the Mode Selection Bar).
+
+
+A) Place the Cave Entrance Prop
+────────────────────────────────
+  1. In the Objects panel on the left side of the editor, browse
+     through the available objects.
+
+  2. Find a cave entrance prop. These are found in the Objects
+     section — look for entries with names like "Cave Entrance" or
+     similar cave/dungeon door models.
+
+  3. Place it at your desired location on the surface map. Position
+     it where you want the player to find the dungeon entrance.
+
+  4. Adjust position if needed using the NumPad keys:
+       Numpad +/-     Raise / Lower
+       Numpad 7/9     Move left / right
+       Numpad 1/3     Move forward / back
+       Numpad //      X axis rotate
+       Numpad 4/6     Y axis rotate
+       Numpad 8/2     Z axis rotate
+
+  TIP: Use Alt+H (Game Hero & Camera) to place the game character
+  in the editor and walk around. This lets you check if the entrance
+  looks right from the player's perspective and if the player can
+  physically reach it.
+
+
+B) Place the Destination Marker
+───────────────────────────────
+  1. Still in the Objects section, find the marker that looks like a
+     square and is named "Dest_from_lower" (the full name may be
+     MARKER_TELEPORT_DEST_FROMLOWER).
+
+  2. Place this marker near the cave entrance prop — this is the
+     position where the player will appear when exiting the dungeon
+     (teleporting back up from the underground).
+
+  3. Make sure the marker is on walkable ground near (but not inside)
+     the entrance prop.
+
+  TIP: To see markers in the editor, make sure "Draw Markers" is
+  enabled. Toggle it with Alt+M or via the Tools menu. Markers are
+  invisible in-game but essential for the teleport system.
+
+
+C) Set the Lower Connection in Properties
+──────────────────────────────────────────
+  1. Go to Tools → Properties (or click the Level Settings button
+     in the Quick Selection Bar).
+
+  2. In the "Connected Levels" section, find the "Lower" field.
+
+  3. Enter the filename of your underground level here (the one you
+     will create in Step 2). For example, if your dungeon map file
+     will be named "Map_E01_1", enter that name.
+
+  4. Click OK and save your surface map.
+
+NOTE: You can also set this connection later, after creating the
+underground level. Just remember it must be done before testing
+in-game.
+
+
+================================================================================
+  STEP 2 — Create the Underground Level (The Dungeon)
+================================================================================
+
+Now you create the actual dungeon as a separate underground level.
+
+
+A) Create a New Level
+─────────────────────
+  1. In the TwoWorldsEditor, go to File → New to create a new level.
+
+  2. Go to Tools → Properties to open the Level Settings.
+
+  3. Configure the following settings:
+
+     Level Name:         Give it a descriptive name (e.g. "E1 Cave")
+
+     Level File Name:    Use the naming convention for underground
+                         levels. The community convention (Smoothness)
+                         is to name dungeons after their parent surface
+                         map with a "_1" suffix added.
+                         Example: Surface map = "E1"
+                                  Dungeon map = "E1_1"
+
+     Size:               Set to Medium (128 x 128). This is the
+                         standard size that matches the vanilla in-game
+                         map sizes. All map tiles should be the same
+                         size — they work like puzzle pieces.
+                         NOTE: The editor may crash with Custom sizes
+                         above 512x512.
+
+     Underground Level:  CHECK THIS BOX. This is critical — it tells
+                         the engine that this level is an underground
+                         map. Without this flag, the dungeon will not
+                         function correctly.
+
+     Connected Levels:
+       Upper:            Enter the filename of your surface map here.
+                         This creates the link back to the surface.
+                         Example: If your surface map is "Map_E01",
+                         enter "Map_E01".
+
+  4. Click OK.
+
+
+B) Load a Cave Template via World Configuration
+────────────────────────────────────────────────
+Starting with a completely blank underground level would require
+building all terrain, textures and geometry from scratch. A much
+easier approach is to load an existing underground location as a
+template:
+
+  1. Go to the World Configuration menu (click the globe icon in
+     the Quick Selection Bar, or find it in the Tools menu).
+
+  2. In the World Configuration dialog, find the option to select
+     an existing underground location.
+
+  3. Select one of the predefined cave types, for example "Cave 1".
+
+  4. Confirm your selection.
+
+The editor will load the selected cave's terrain shape and textures
+onto your new underground level. This gives you a fully textured cave
+environment as a starting point that you can then modify and populate
+with objects.
+
+Available templates include various cave formations. Experiment with
+different selections to find the style that fits your dungeon concept.
+You can always modify the terrain and textures afterwards using the
+standard sculpting and texturing tools.
+
+
+C) Place the Cave Exit Prop
+────────────────────────────
+  1. Switch to Object Placement mode.
+
+  2. In the Objects section, find a "Cave Exit" prop. This is the
+     visual representation of the exit — what the player walks
+     toward to leave the dungeon.
+
+  3. Place it at the location where you want the dungeon exit to be.
+     This is typically near the edge of the playable area or at the
+     end of a main passage.
+
+
+D) Place the Exit Destination Marker
+─────────────────────────────────────
+  1. In the Objects section, find the square-shaped marker named
+     "Dest_from_upper" (full name: MARKER_TELEPORT_DEST_FROMUPPER).
+
+  2. Place this marker near the Cave Exit prop. This is where the
+     player appears when entering the dungeon from the surface.
+
+  3. Make sure it is on walkable terrain close to the exit prop.
+
+IMPORTANT: This marker serves double duty:
+  • It defines where the player spawns when entering the dungeon
+  • It is used by the edundgr.txt finalization script to calculate
+    which areas of the dungeon are reachable (passable terrain).
+    If this marker is missing, the finalization script will disable
+    all terrain, making the entire dungeon inaccessible.
+
+
+================================================================================
+  STEP 3 — Populate the Dungeon
+================================================================================
+
+With the basic dungeon structure in place, you need to fill it with
+content to make it interesting for the player.
+
+
+A) Enemy Spawners
+─────────────────
+There are two ways to place enemies in the editor, but only one of
+them works correctly for active, functioning enemies:
+
+  METHOD 1 — Spawner Markers (RECOMMENDED)
+  Place spawner markers from the Objects section. Look for markers
+  with names like "animal spawner", "enemy spawner" etc. When the
+  game runs, enemies will dynamically spawn at these marker locations.
+
+  Spawn counts:
+    • Normal enemies:  2-6 per marker
+    • Giants / tough:  1-3 per marker
+
+  METHOD 2 — Direct NPC Model Placement (NOT RECOMMENDED)
+  If you place NPC models directly on the map, they will appear
+  in-game but will NOT act or move. They stand still like statues
+  and only become active when attacked or provoked. Their names also
+  display as unusual/generic text. This is generally not what you want
+  for a dungeon with active enemies.
+
+  RECOMMENDATION: Always use spawner markers for enemies.
+
+
+B) Chests and Loot Containers
+─────────────────────────────
+Place chest objects from the Objects section. Key facts about chests:
+
+  • Players can open all placed chests by picking the locks.
+  • Loot inside chests is always randomized based on the player's
+    character level — you do not control the specific items.
+  • Simply place the chest where you want it; no additional setup
+    is required for it to be lootable.
+
+
+C) Gates and Doors
+──────────────────
+Gate behavior depends on the context in which they are placed:
+
+  • In existing villages, populated locations, and castles:
+    Gates can automatically open when the player is in-game.
+
+  • Outside populated locations:
+    Gates remain closed by default, but the player character can
+    manually open or close them.
+
+  • In custom-built castles/structures:
+    Gates will most likely NOT open automatically. The player must
+    open them manually.
+
+Keep this in mind when designing dungeon rooms with gates — players
+will need to interact with them to proceed.
+
+
+D) Light Sources
+────────────────
+Underground levels have NO ambient light by default. Without placed
+light sources, the dungeon will be completely dark. Place torches,
+braziers, magic crystals, or other light-emitting objects throughout
+your dungeon.
+
+Guidelines for lighting:
+  • Place lights near intersections and branching paths
+  • Illuminate areas around chests and important objects
+  • Light the entrance/exit area so players can orient themselves
+  • Sparse lighting creates atmosphere and tension
+  • Dense lighting makes navigation easier and feels safer
+
+Use the Objects section to find light-emitting props. In the vanilla
+game, common dungeon lights include wall torches and standing braziers.
+
+
+E) Decorative Objects
+─────────────────────
+Fill the dungeon with props to create atmosphere:
+  • Furniture (tables, chairs, shelves, barrels)
+  • Environmental details (rubble, bones, cobwebs, mushrooms)
+  • Structural elements (pillars, archways, collapsed walls)
+  • Interactive objects (levers, pressure plates if available)
+
+Browse the Objects section thoroughly — there are many categories
+including Environment, Furniture, Dungeon-specific objects, etc.
+
+TIP: Select an object with Numpad 5, move it with Numpad 7/9/1/3,
+raise/lower with +/-, and rotate with Numpad //4/6/8/2. Press
+Numpad Del to deselect. Use Shift+Left Click on a highlighted
+object to delete it.
+
+
+================================================================================
+  STEP 4 — Finalize the Underground Terrain
+================================================================================
+
+After placing all your objects and markers, you need to finalize the
+underground level's terrain to properly define passable/impassable
+areas and set the visual darkness effect.
+
+
+A) Update Terrain Passing and Walkable Objects
+──────────────────────────────────────────────
+Before running the finalization script, update the collision and
+navigation data:
+
+  1. Go to Tools → Update Terrain Passing (shortcut: Alt+U)
+     This updates the terrain collision data so the player and NPCs
+     can walk on surfaces correctly.
+
+  2. Go to Tools → Update Walkable Objects (shortcut: Alt+W)
+     This updates which objects NPCs can walk on or around.
+
+It is recommended to do this after you finish placing/modifying
+objects and terrain. Changes to landscape or objects may require
+re-running these updates.
+
+
+B) Run the Underground Finalization Script
+──────────────────────────────────────────
+Open the console (press C) and run the following commands. These
+set up the proper terrain coloring (black void for inaccessible
+areas) that gives dungeons their characteristic look.
+
+OPTION 1 — Run on the current level:
+
+First, fill the level with white:
+
+  Editor.FillWorldWithColor 0xFFFFFFFF
+
+Then execute the finalization script:
+
+  @edundgr.txt
+
+The edundgr.txt script performs these operations in sequence:
+
+  Editor.ReplaceColor 0xFF000000 0xFFFFFFFF
+    → Resets any existing black terrain to white (clean slate).
+
+  editor.LabelNotDisabledPassableFromMarkers
+    MARKER_TELEPORT_DEST_FROMUPPER MARKER_TELEPORT_DEST_FROMLOWER
+    → Starting from your teleport markers, the engine traces all
+      reachable terrain and marks it as passable. Everything the
+      player cannot reach is flagged as disabled.
+
+  Editor.ReplaceColorOnDisabledTerrain 0xFFFFFFFF 0xFF000000 4
+    → Paints all disabled (unreachable) terrain black. The "4"
+      parameter controls the edge blending distance for a smooth
+      transition between lit and dark areas.
+
+  editor.savelevel
+    → Saves the level.
+
+OPTION 2 — Run on ALL underground levels at once:
+
+  Editor.foreachundergroundlevel Editor.FillWorldWithColor 0xFFFFFFFF
+  Editor.foreachundergroundlevel @edundgr.txt
+
+CRITICAL: You MUST have your MARKER_TELEPORT_DEST_FROMUPPER and/or
+MARKER_TELEPORT_DEST_FROMLOWER markers placed BEFORE running this
+script. If these markers are missing, the script cannot determine
+which areas are accessible and will either disable the entire level
+or produce broken results.
+
+If something goes wrong, you can clear the disabled flags and start
+over:
+
+  Editor.ClearDisabled
+
+Then re-place your markers and run the finalization script again.
+
+
+C) Test with the Game Hero
+──────────────────────────
+Before going through the full mod packing process, use the editor's
+built-in testing feature:
+
+  1. Press Alt+H or go to Tools → Game Hero & Camera
+
+  2. This places the game character into your underground level.
+
+  3. Move around with WASD to check:
+     • Can you walk through all intended areas?
+     • Are there invisible walls or holes?
+     • Is the lighting sufficient?
+     • Do the entrance/exit areas look correct?
+     • Are spawner locations reasonable?
+
+This is much faster than packing a .wd and launching the full game
+every time you want to test.
+
+
+================================================================================
+  STEP 5 — Cook Physics and Build the Mod
+================================================================================
+
+The underground level needs physics data just like surface levels.
+
+
+A) Cook PhysX
+─────────────
+Open the console (C key) in the editor with your dungeon level loaded
+and run:
+
+  editor.cookphysx.mode geomipmap
+  editor.cookphysx.strength = 1.0
+  editor.cookphysx.overwrite = 1
+  editor.cookphysx.pc out
+
+Wait until the process completes. The .phx file will be written to
+your Saves\Levels\Physic\ folder.
+
+IMPORTANT: The .phx file must NOT be compressed in the .wd archive.
+Old/other WD packers compress .phx files, which causes game crashes.
+Only use Buglord's wdio.py or his WD Repacker.
+
+
+B) Generate LevelHeaders
+─────────────────────────
+Run LevelHeadersCacheGen.bat in the SDK's Tools folder. This must be
+regenerated every time any map changes, including adding new dungeon
+levels. The result is a Map_LevelHeaders.lhc file that indexes all
+map tiles.
+
+
+C) Prepare the Mod Folder
+──────────────────────────
+Your mod needs both the surface map files AND the dungeon map files.
+Create the following structure:
+
+  Mods\
+  └── MyMod\
+      └── Levels\
+          ├── Map_E01.lnd          ← Surface map
+          ├── Map_E01.bmp          ← Surface minimap
+          ├── Map_E01_1.lnd        ← Dungeon map (underground)
+          ├── Map_E01_1.bmp        ← Dungeon minimap
+          ├── Map_LevelHeaders.lhc ← Regenerated level index
+          └── physic\
+              ├── Map_E01.phx      ← Surface physics
+              └── Map_E01_1.phx    ← Dungeon physics
+
+IMPORTANT — File Renaming!
+The editor saves files with an "s" suffix (e.g. Map_E01s.lnd). This
+"s" must be removed when placing files in the mod folder. The names
+must exactly match the vanilla filenames because the .wd archive
+overrides the original game files.
+
+  Editor saves:  Map_E01s.lnd,  Map_E01s.bmp,  Map_E01s.phx
+  Mod needs:     Map_E01.lnd,   Map_E01.bmp,   Map_E01.phx
+
+
+D) Pack and Activate
+────────────────────
+Follow the standard Map-to-Mod workflow:
+
+  1. Pack the mod folder into a .wd archive using Buglord's wdio.py:
+
+     python wdio.py pack -v 1 -o "Mods\MyMod" "Mods\MyMod.wd"
+
+  2. Place MyMod.wd in the game's Mods\ folder.
+
+  3. Activate the mod in the registry using Buglord's Mod Selector
+     or manually via regedit.
+
+  4. ALWAYS start a new game to test! Loading an existing save will
+     use the old map data.
+
+For full details on the packing and activation process, see the
+"TW1 Map to Mod Conversion Guide".
+
+
+================================================================================
+  USEFUL CONSOLE COMMANDS FOR DUNGEON WORK
+================================================================================
+
+Below is a reference of console commands especially useful when
+building and debugging underground levels. Open the console with
+the C key in the editor.
+
+LEVEL & PROPERTIES
+──────────────────
+  editor.LoadLevel level.lnd
+    Load a specific level file directly from the console.
+
+  editor.setlevelsize Level.lnd newWidth newHeight offsetDx offsetDy NewLevel.lnd
+    Resize a level. Standard dungeon size is 128x128.
+    Example: editor.setlevelsize Map_E01_1.lnd 128 128 16 16 Map_E01_1new.lnd
+
+  editor.savelevel
+    Save the current level.
+
+  editor.SaveLevelBmp
+    Save the current level's minimap bitmap.
+
+TERRAIN COLOR & UNDERGROUND
+───────────────────────────
+  Editor.FillWorldWithColor 0xFFFFFFFF
+    Fill entire level with white. Use before the finalization script.
+
+  Editor.FillWorldWithColor 0xFF000000
+    Fill entire level with black.
+
+  Editor.ReplaceColor oldColor newColor
+    Replace all terrain of one color with another.
+    Example: Editor.ReplaceColor 0xFF000000 0xFFFFFFFF
+
+  Editor.ReplaceColorOnDisabledTerrain oldColor newColor range
+    Replace color only on disabled terrain.
+    Example: Editor.ReplaceColorOnDisabledTerrain 0xFFFFFFFF 0xFF000000 4
+
+  editor.LabelNotDisabledPassableFromMarkers MARKER1 MARKER2 ...
+    Calculate passable terrain from specified marker types.
+    The core command for underground terrain visibility.
+
+  Editor.ClearDisabled
+    Reset all disabled-terrain flags. Use if you need to redo the
+    passability calculation from scratch.
+
+BATCH EXECUTION
+───────────────
+  Editor.foreachundergroundlevel @script.txt
+    Execute a script on every underground level.
+
+  Editor.foreachsurfacelevel @script.txt
+    Execute a script on every surface level.
+
+  editor.foreachlevel @script.txt
+    Execute a script on every level (surface + underground).
+
+MARKERS & OBJECTS
+─────────────────
+  Editor.SetDrawMapMarkers MARKER_ENEMY_* 0xFFFF0000
+    Highlight specific marker types on the map with a color.
+    Useful for visualizing where your spawners are placed.
+    Example with multiple types:
+    Editor.SetDrawMapMarkers MARKER_ENEMY_* 0xFFFF0000
+      MARKER_B_WOODCUT 0xFFFFFF00
+
+  Editor.SetDrawMapMarkers x
+    Turn off marker highlighting.
+
+  editor.MapMarkerSize 2
+    Set the display size of markers on the map.
+
+  Editor.DeleteBadMarkers
+    Remove invalid/broken markers from the level. Useful for
+    cleaning up after experiments.
+
+  Editor.DeleteBadObjectMarkers markerID
+    Remove broken markers of a specific type.
+
+  editor.deletemarker markerID num
+    Delete a specific number of markers of a given type.
+
+  editor.deletemarker markerID minNum maxNum
+    Delete markers within a range.
+
+  Editor.SetMissingObjectMarkersNumbers
+    Fix missing number assignments on object markers.
+
+OBJECT PLACEMENT VIA CONSOLE
+─────────────────────────────
+  createEd x y z alpha [beta phi] objectID [meshVariant] [meshScale]
+    Place an object at exact coordinates via console.
+    z == 0 means ground level.
+    z - ground == 16*256 (for height offset).
+    Useful for precise placement that is hard to do with the mouse.
+
+  Editor.DeleteAllObjects objectID
+    Remove all instances of a specific object type from the level.
+
+  editor.SetCreateRect left top right bottom [MinZ MaxZ]
+    Define a rectangular area for batch object operations.
+
+  editor.CreateObjectsOnArea objectID count minRange [standMask]
+    Batch-create objects within the defined rectangle.
+    standMask: 0x100 = box to lowest ground, 0x7 = glue to ground.
+    Set count to 0 to define the minRange for that objectID.
+
+  editor.ResetCreateObjectsOnArea
+    Reset the creation rectangle and height limits.
+
+  Editor.ReplaceObject old new
+    Replace all instances of one object type with another.
+
+CONNECTED LEVEL COMMANDS
+────────────────────────
+  Editor.LoadObjectsForConnectedLevel 0/1
+    Toggle loading objects from connected levels (0=off, 1=on).
+    Useful for checking how your surface entrance looks together
+    with the dungeon in the editor.
+
+  Editor.CopyAltitudeFromConnected size mode
+    Copy terrain height from a connected level's edge.
+    Modes: 0=flat, 1=mirror, 2=mirror inverted, 3=linear approx.
+
+  Editor.CopyEdgeFromConnected
+    Copy the last vertex line from the connected level's edge.
+
+DISPLAY & TESTING
+─────────────────
+  Alt+H     Game Hero & Camera — place the player character in the
+            level for walkthrough testing (WASD to move).
+
+  Alt+M     Toggle Draw Markers — show/hide markers in the editor.
+
+  Alt+O     Toggle Draw Objects — show/hide placed objects.
+
+  Alt+S     Toggle Draw Sound Objects — show/hide sound emitters.
+
+  Alt+E     Toggle Draw Houses Exteriors.
+
+  Alt+I     Toggle Draw Houses Interiors.
+
+  Alt+U     Update Terrain Passing — recalculate terrain collision.
+            Run after changing landscape or objects.
+
+  Alt+W     Update Walkable Objects — recalculate NPC walkability.
+            Run after changing objects.
+
+PHYSICS
+───────
+  editor.cookphysx.mode geomipmap
+  editor.cookphysx.strength = 1.0
+  editor.cookphysx.overwrite = 1
+  editor.cookphysx.pc out
+    The full PhysX cooking sequence. Must be run for every map
+    (surface and underground) before packing into a .wd file.
+
+OTHER USEFUL
+────────────
+  Editor.RemoveLocalFog
+    Remove fog from the level. Can be useful in underground levels
+    where fog may cause visual issues.
+
+  editor.setwaterh 850
+    Set the global water height. Underground levels typically should
+    not have water unless specifically designed for it.
+
+  editor.AddZToAll xxx
+    Add a height offset to all objects on the level. Useful if your
+    entire dungeon content needs to be raised or lowered.
+
+
+================================================================================
+  NAMING CONVENTIONS
+================================================================================
+
+The TW1 map naming system follows a grid pattern. Understanding this
+helps when naming your dungeon levels:
+
+  Surface maps:    Map_[Letter][Number]
+                   Examples: Map_E01, Map_F03, Map_A12
+
+  Dungeon maps:    Add "_1" to the parent surface map name
+                   Examples: Map_E01_1, Map_F03_1
+
+  Editor saves:    The editor appends "s" + extra characters
+                   Example: Map_E01s.lnd (saved from editor)
+                   These must be renamed when building the mod:
+                   Map_E01s.lnd  →  Map_E01.lnd
+
+  Alternative naming (Smoothness' method for non-vanilla maps):
+    Surface: Name your maps after the originals, add "remake"
+    Dungeon: Name after the original, add "_1"
+    Example: Surface = "E1" → Dungeon = "E1_1"
+
+NOTE: When you override an existing vanilla map, your modded .lnd
+file must have the exact same filename as the original. The .wd
+archive system works by file override — files in the .wd with the
+same path and name as vanilla files replace them when the mod is
+active.
+
+
+================================================================================
+  TROUBLESHOOTING
+================================================================================
+
+Problem                           Solution
+────────────────────────────────  ──────────────────────────────────────
+Dungeon doesn't appear when       Check Tools → Properties on BOTH
+entering the cave in-game         levels. Surface needs "Lower" set to
+                                  the dungeon filename. Dungeon needs
+                                  "Upper" set to the surface filename.
+                                  Verify the names match exactly.
+
+Player spawns in the void /       Dest_from_upper marker is missing or
+falls through the floor           misplaced in the dungeon. Place it on
+                                  valid, walkable terrain near the exit
+                                  prop. Also: cook PhysX on the dungeon
+                                  level.
+
+Entire dungeon is black /         The edundgr.txt finalization disabled
+can't move anywhere               all terrain because teleport markers
+                                  were missing. Place your markers
+                                  (MARKER_TELEPORT_DEST_FROMUPPER and/or
+                                  MARKER_TELEPORT_DEST_FROMLOWER) first.
+                                  Then run: Editor.ClearDisabled
+                                  Then re-run: @edundgr.txt
+
+Exiting dungeon teleports to      Dest_from_lower marker is missing or
+wrong location on surface          misplaced on the surface map. Place it
+                                  near the cave entrance prop on walkable
+                                  ground.
+
+No collision — player falls       PhysX not cooked for the dungeon level.
+through terrain                   Run the cookphysx commands (see Step 5).
+                                  Also check that the .phx is NOT
+                                  compressed in the .wd archive.
+
+Enemies don't move or react       You placed NPC models directly instead
+                                  of spawner markers. Delete the models
+                                  and use spawner markers instead (see
+                                  Step 3, Section A).
+
+Dungeon is completely dark        No light sources placed. Add torches,
+                                  braziers, or other light-emitting
+                                  objects throughout the dungeon.
+
+Can't see markers in editor       Toggle marker visibility with Alt+M
+                                  or Tools → Draw Markers.
+
+Map doesn't load with mod         Check that LevelHeaders.lhc was
+active                            regenerated (run LevelHeadersCacheGen
+                                  .bat) AFTER adding your dungeon level.
+                                  Also verify the .wd is in the Mods\
+                                  folder and activated in the registry.
+
+Surface map loads but changes     Always start a new game! Loading
+are not visible                   existing saves uses old map data
+                                  from the save file, not from the mod.
+
+Dungeon terrain looks wrong       Try a different cave template in World
+after loading template            Configuration. Not all templates work
+                                  equally well for every purpose.
+
+"Sometimes they do not work"      This is expected at the current state
+                                  of community knowledge. Dungeon
+                                  creation was reverse-engineered and
+                                  not all mechanics are fully understood.
+                                  Save frequently, test often, and be
+                                  prepared to iterate.
+
+
+================================================================================
+  COMPLETE WORKFLOW CHECKLIST
+================================================================================
+
+Use this as a quick reference when building a dungeon from scratch.
+
+  SURFACE MAP:
+  [ ] Open surface map in editor
+  [ ] Place Cave Entrance prop (Objects section)
+  [ ] Place Dest_from_lower marker near entrance
+  [ ] Set "Lower" in Properties → Connected Levels
+  [ ] Save surface map
+  [ ] Cook PhysX for surface map
+
+  UNDERGROUND MAP:
+  [ ] File → New → create new level
+  [ ] Properties: check "Underground Level"
+  [ ] Properties: set Size to 128x128 (Medium)
+  [ ] Properties: set "Upper" to surface map filename
+  [ ] World Configuration → load cave template (e.g. Cave 1)
+  [ ] Place Cave Exit prop
+  [ ] Place Dest_from_upper marker near exit
+  [ ] Place spawner markers for enemies
+  [ ] Place chests and loot containers
+  [ ] Place light sources (torches, braziers, etc.)
+  [ ] Place decorative objects
+  [ ] Update Terrain Passing (Alt+U)
+  [ ] Update Walkable Objects (Alt+W)
+  [ ] Run Editor.FillWorldWithColor 0xFFFFFFFF
+  [ ] Run @edundgr.txt
+  [ ] Test with Alt+H (Game Hero)
+  [ ] Cook PhysX for dungeon map
+  [ ] Save dungeon map
+
+  MOD BUILDING:
+  [ ] Regenerate LevelHeaders (LevelHeadersCacheGen.bat)
+  [ ] Copy & rename all files (remove "s" suffix)
+  [ ] Create mod folder structure (surface + dungeon + physic)
+  [ ] Pack into .wd with Buglord's wdio.py
+  [ ] Place .wd in game's Mods\ folder
+  [ ] Activate in registry (Mod Selector or regedit)
+  [ ] Start a NEW game to test
+
+
+================================================================================
+  Sources: Smoothness (Discord TW Community), Reality Pump SDK 1.3
+           Documentation (Editor console.txt, _info_.txt),
+           VinnieMc (Two Worlds Editor Manual v1.2),
+           Medieval_Dev & Smoothness (Discord FAQ)
+  Compiled for the TW Editor community documentation project
+================================================================================

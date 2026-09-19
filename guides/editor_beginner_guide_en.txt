@@ -1,0 +1,1329 @@
+================================================================================
+  TWO WORLDS 1 — Editor Beginner Guide  (Comprehensive Reference)
+================================================================================
+
+OVERVIEW
+────────
+The TwoWorldsEditor is the official level editor for Two Worlds 1,
+included in the TwoWorlds SDK version 1.3. It was the primary tool
+used by Reality Pump Studios to build the game's open world, and it
+is the only tool available for creating custom maps and mods for
+Two Worlds 1.
+
+The editor is a fully featured 3D level design tool that allows you
+to sculpt terrain, paint textures, place objects, configure weather
+and sky, set up NPC encounters, and design both surface and
+underground levels. It also includes a console system for advanced
+operations and batch processing.
+
+This guide covers everything a new user needs to know to get started
+with the editor, from installation to placing your first objects.
+For exporting your map as a playable mod, see the companion guide
+"TW1 Map to Mod Conversion Guide". For creating dungeons and caves,
+see the "TW1 Dungeon Creation Guide (Part 1 & 2)".
+
+
+IMPORTANT NOTES BEFORE YOU START
+─────────────────────────────────
+  • The SDK was built for game version 1.6. The current game version
+    is 1.7 (Epic Edition on Steam/GOG). Most editor features work
+    fine with 1.7, but be aware of potential minor incompatibilities.
+
+  • The SDK comes with all paths hardcoded to:
+      D:\Games\TwoWorldsSDK  (for the SDK)
+      D:\Games\TwoWorlds     (for the game)
+    If your installation is different, you will need to update paths
+    in .bat, .reg, and .xls files accordingly.
+
+  • Some SDK tools require PhysX DLLs from the game directory. Either
+    copy those DLLs to the Tools folder or add your game directory to
+    the system PATH environment variable.
+
+  • Reality Pump's own note from the SDK: "We give you this SDK
+    'as it is' and you must be aware that game wasn't especially
+    prepared for handling mods." Keep this in mind — some things are
+    experimental and may not work perfectly.
+
+  • If playing with mods, install the 4GB Patch from ntcore.com to
+    avoid memory-related crashes. Steam users: create a desktop
+    shortcut from the game folder — the 4GB Patch does not work
+    with the Steam launcher shortcut.
+
+
+================================================================================
+================================================================================
+  QUICK START — Your First Map in 15 Minutes
+================================================================================
+================================================================================
+
+For impatient modders who want to see results fast. This section gets
+you from zero to a basic map in the shortest time possible. Read the
+detailed sections afterwards for the full picture.
+
+
+STEP 1 — Launch the Editor
+───────────────────────────
+Open TwoWorldsEditor.exe from TwoWorldsSDK\Tools\.
+Make sure NumLock is ON (the editor relies heavily on the NumPad).
+
+
+STEP 2 — Create a New Level
+────────────────────────────
+Go to File → New.
+Then immediately go to Tools → Properties and set:
+  • Level Name:       Give it any name (e.g. "MyFirstMap")
+  • Level File Name:  Use the naming convention, e.g. "Map_F01"
+  • Size:             Medium (128x128) — this is the standard
+  • Underground:      Leave UNCHECKED (surface map)
+Click OK.
+
+
+STEP 3 — Sculpt the Terrain
+────────────────────────────
+Click the "Terrain Shape and Texture" button on the Mode Selection
+Bar (the mountain icon on the left side toolbar).
+
+The left panel shows brush options:
+  • Shape:  Select a brush shape (circular, square, etc.)
+  • Size:   Adjust the brush radius
+  • Power:  How strong the sculpting effect is
+
+Left-click and drag on the terrain to raise it. Hold Shift + Left
+click to lower terrain. Move around with the Arrow Keys, zoom with
+Page Up / Page Down.
+
+Create a few hills, a valley, whatever you like.
+
+
+STEP 4 — Paint Textures
+────────────────────────
+Still in Terrain Shape and Texture mode, the left panel also shows
+texture slots. Click on a texture slot to select it, then paint on
+the terrain with Left Mouse Button.
+
+To change textures: Click the "Setup textures set" button at the top
+of the panel. This opens the Texture Set Manager where you can browse
+and assign different terrain textures (grass, rock, dirt, sand, etc.).
+
+Select a texture set from the right-hand list (e.g. one of the
+predefined game sets), then close the manager and start painting.
+
+
+STEP 5 — Place Objects
+───────────────────────
+Click the "Objects" button on the Mode Selection Bar (the cube icon).
+
+The left panel now shows the Objects browser. Browse through the
+categories — Environment, Buildings, Furniture, Characters, etc.
+
+Click on an object to select it. Left-click on the terrain to place
+it. Use the NumPad to adjust:
+
+  Numpad 5     Select/pick up nearest object
+  Numpad +/-   Raise / Lower
+  Numpad 7/9   Move left / right
+  Numpad 1/3   Move forward / back
+  Numpad /     X axis rotate (left)
+  Numpad *     X axis rotate (right)
+  Numpad 4/6   Y axis rotate
+  Numpad 8/2   Z axis rotate
+  Numpad Del   Deselect
+
+Place a few trees, rocks, and maybe a building.
+
+
+STEP 6 — Test It
+─────────────────
+Press Alt+H (or Tools → Game hero & camera) to drop the game
+character into your level. Move around with WASD to see your
+creation from the player's perspective. Press Alt+H again to
+exit hero mode.
+
+
+STEP 7 — Save
+──────────────
+Press Ctrl+S or File → Save. The editor saves to the Saves\Levels\
+folder inside the SDK/Game directory.
+
+To play your map as a mod, follow the "TW1 Map to Mod Conversion
+Guide" (cook PhysX, generate LevelHeaders, pack .wd, activate).
+
+
+DONE! You now have a basic map. Read on for the full details on
+every feature.
+
+
+================================================================================
+================================================================================
+  FULL REFERENCE — Detailed Documentation
+================================================================================
+================================================================================
+
+
+================================================================================
+  SECTION 1 — SDK CONTENTS & TOOLS OVERVIEW
+================================================================================
+
+The TwoWorlds SDK 1.3 contains everything Reality Pump used to build
+the game (minus the proprietary engine source code). Here is what
+each component does:
+
+  Folder / File                 Purpose
+  ────────────────────────────  ────────────────────────────────────
+  Documentation\                Contains readme files for various
+                                tools, including Dungeons readme.txt,
+                                Editor console.txt, Maya plugins
+                                readme.txt, WhizzEdit manual, and
+                                auto-generated EarthC function lists.
+
+  Dungeons\                     The dedicated Dungeon Editor tool with
+                                sample data. Used to create block-based
+                                underground dungeon layouts.
+                                See "Dungeon Creation Guide Part 2".
+
+  Game\                         Console scripts and batch files needed
+                                by the editor. These files MUST be
+                                copied to your game directory.
+    cook_PC\                    PhysX cooking scripts — creates .phx
+                                physics files for levels.
+    *.txt                       Level generation scripts used by the
+                                editor's console system.
+
+  Interface\                    Game interface definition files. Must
+                                be compiled with InterfaceMap.exe to
+                                create GameInterface.dat.
+
+  MayaPlugins\                  Plugins for Autodesk Maya for exporting
+                                custom 3D models into the game format.
+
+  Parameters\                   Game parameter definition files. The
+                                main file is TwoWorlds.xls (Excel).
+                                Must be compiled with Makra.xls macro
+                                to create TwoWorlds.par. This controls
+                                all game data: units, items, skills,
+                                stats, AI behavior, and more.
+
+  Scripts\                      EarthC script sources (game logic).
+                                Must be compiled into .eco files.
+
+  Tools\                        The main tool executables:
+    TwoWorldsEditor.exe         THE LEVEL EDITOR — this guide's focus
+    ParticleEdit.exe            Particle effects editor
+    EarthC.exe / EarthC.bat     Script compiler
+    EarthCdbg.exe               Script editor and debugger
+    InterfaceMap.exe             Interface file compiler
+    LevelHeadersCacheGen.bat    Generates Map_LevelHeaders.lhc
+                                (level index, must run after map changes)
+    MeshParamsGen.bat            Generates MeshParams.dat (run after
+                                mesh/animation changes)
+    MeshParamsGen.exe            Core tool for the above batch files
+    ParamsParser.exe             Compiles TwoWorlds.par from .xls
+    WDCreator.exe                Creates .wd archive files
+    ConvertLevelBmp.bat         Creates MipMaps .dds for map dialog
+                                (requires DirectX SDK TexConv.exe)
+    gcc\                         C preprocessor (from GCC distribution)
+
+  TreesGenerator\               Standalone tool for generating tree
+                                models. Requires extracted texture
+                                files from Graphics.wd. Creates .vdf
+                                model files from .tpn source files.
+                                May require vcredist_x86.exe.
+
+  WhizzEdit\                    Quest editor with localization support.
+                                Contains quest data from version 1.5.
+                                Requires .NET Framework 2.0.
+
+SDK DEFAULT PATHS
+─────────────────
+All batch files, registry files, and Excel macros use these paths:
+
+  SDK:   D:\Games\TwoWorldsSDK
+  Game:  D:\Games\TwoWorlds
+
+If your paths differ, you must update:
+  • All .bat files (LevelHeadersCacheGen.bat, MeshParamsGen.bat, etc.)
+  • All .reg files (ParticleEdit.reg, EarthCdbg.reg, TreesGenerator.reg)
+  • The .xls parameter files
+
+COPY THE GAME FOLDER
+─────────────────────
+The Game\ directory from the SDK contains console scripts the editor
+needs at runtime. Copy its contents to your actual game directory, or
+the editor's console commands may not work.
+
+
+================================================================================
+  SECTION 2 — KEYBOARD MAPPING  (Complete Reference)
+================================================================================
+
+The TwoWorldsEditor relies heavily on the NumPad for object
+manipulation and keyboard shortcuts for everything else. Make sure
+NumLock is ON before starting.
+
+
+NUMPAD — Object Manipulation (in Object Placement Mode)
+───────────────────────────────────────────────────────
+
+  Key           Function
+  ────────────  ────────────────────────────────────────────────
+  Numpad 5      SELECT OBJECT — Move the mouse cursor over an
+                object until a red bar appears, then press
+                Numpad 5 to select it. The object changes color
+                to indicate selection.
+
+  Numpad +      RAISE selected object (move upward)
+  Numpad -      LOWER selected object (move downward)
+
+  Numpad 7      MOVE LEFT
+  Numpad 9      MOVE RIGHT
+  Numpad 1      MOVE FORWARD
+  Numpad 3      MOVE BACK
+
+  Numpad /      ROTATE X AXIS (one direction)
+  Numpad *      ROTATE X AXIS (other direction)
+  Numpad 4      ROTATE Y AXIS (left rotation)
+  Numpad 6      ROTATE Y AXIS (right rotation)
+  Numpad 8      ROTATE Z AXIS (back rotation)
+  Numpad 2      ROTATE Z AXIS (front rotation)
+
+  Numpad Del    DESELECT current object, return to placement mode
+
+  Numpad 0      Switch brush DENSITY (terrain sculpting/texturing)
+  Numpad 1      Switch brush SHAPE (terrain sculpting/texturing)
+                (Note: Numpad 1 has dual function depending on mode)
+
+
+MOUSE CONTROLS
+──────────────
+  Left Mouse Button       Place object / Paint texture / Sculpt terrain
+  Shift + Left Click      DELETE a highlighted object (Object Mode)
+  Right Mouse Button      Hold to ROTATE the camera view
+  Right Click on Minimap  TELEPORT camera to that location instantly
+  Arrow Keys              Move camera across the terrain
+  Page Up                 Zoom in
+  Page Down               Zoom out
+  Numpad .  (Period)      Rotate the entire scene
+
+
+IMPORTANT KEYBOARD SHORTCUTS
+─────────────────────────────
+
+  Shortcut        Function
+  ──────────────  ────────────────────────────────────────────────
+  C               Open the CONSOLE (command line)
+  Ctrl+S          Save current level
+  Ctrl+Z          Undo
+  Ctrl+A          Set All Hold Texture
+  Ctrl+H          Clear All Hold Texture
+  Ctrl+U          Unlock All Vertexes
+  Ctrl+R          Define Random Brush (toggle random mode)
+  Ctrl+G          Draw Texture Grid (toggle)
+  Ctrl+E          Draw Sharp Edges (toggle)
+  Ctrl+T          Terrain Passing Mode (toggle paint mode)
+
+  Alt+U           UPDATE TERRAIN PASSING — recalculate terrain
+                  collision. Run after changing landscape or objects.
+  Alt+W           UPDATE WALKABLE OBJECTS — recalculate NPC path
+                  data. Run after changing objects.
+  Alt+H           GAME HERO & CAMERA — drop the player character
+                  into the level for testing (WASD movement).
+  Alt+O           Toggle Draw Objects
+  Alt+M           Toggle Draw Markers
+  Alt+S           Toggle Draw Sound Objects
+  Alt+E           Toggle Draw Houses Exteriors
+  Alt+I           Toggle Draw Houses Interiors / Draw Distant Land
+
+
+================================================================================
+  SECTION 3 — THE MAIN MENU  (Detailed Breakdown)
+================================================================================
+
+
+FILE MENU
+─────────
+  New                      Create a new empty level.
+
+  Open                     Open an existing level file (.lnd).
+                           Note: Levels are stored as .lnd files in
+                           the Saves\Levels\ directory.
+
+  Save                     Save the current level.
+
+  Save As                  Save with a different filename.
+
+  Load Level with Objects  Toggle whether objects are loaded when
+                           opening a level. Turning this OFF can
+                           speed up loading for terrain-only work.
+
+  Connect Levels           Opens the Level Connection Menu for linking
+                           adjacent map tiles together.
+
+  Recent levels            Shows recently opened levels for quick
+                           access.
+
+
+EDIT MENU
+─────────
+  Undo                     Undo the last action.
+  Undo History             View the history of actions for selective
+                           undo.
+  Add History              Add a manual history checkpoint.
+
+
+VIEW MENU
+─────────
+  Level Design             Switch to Level Design mode (the main
+                           editing mode for terrain, textures, and
+                           object placement).
+
+  Camera Movement          Switch to Camera Movement/Tracking mode for
+                           creating camera paths and cinematic sequences.
+
+  Camera Track Always      Toggle whether camera track paths are
+  Visible                  permanently visible in the viewport.
+
+
+TOOLS MENU
+──────────
+This is the most important menu — you will use it constantly.
+
+  Properties               Opens the Level Settings dialog. This is
+                           where you set the level name, file name,
+                           size, underground flag, and connected
+                           levels. (See Section 4 for full details.)
+
+  World Configuration      Opens the Sky and Weather system. Configure
+                           sky dome, cloud types, wind, fog, lighting,
+                           day/night cycle, and weather presets.
+                           For underground levels, this is also where
+                           you can load cave templates.
+                           (See Section 5 for details.)
+
+  Console (C)              Opens the console command line. Type commands
+                           directly or execute script files with @.
+                           Supports auto-complete — start typing and
+                           matching commands appear.
+                           (See Section 10 for full command reference.)
+
+  Set All Hold Texture     Marks all textures as "on hold" (red box).
+  (Ctrl+A)                 Prevents accidental texture changes.
+
+  Clear All Hold Texture   Clears the "on hold" state from all textures.
+  (Ctrl+H)
+
+  Auto Update Terrain      Toggle automatic updating of terrain
+  Passing                  collision data during editing. When ON,
+                           collision updates happen in real-time.
+                           Can be performance-intensive on large levels.
+
+  Update Terrain Passing   Manually recalculate terrain collision data.
+  (Alt+U)                  ALWAYS run this before finalizing a level.
+                           Defines where the player can and cannot walk
+                           based on terrain slope and obstacles.
+
+  Update Walkable Objects  Manually recalculate NPC pathfinding data
+  (Alt+W)                  around objects. ALWAYS run this before
+                           finalizing. Determines where NPCs can
+                           navigate.
+
+  Remove Water             Remove all water from the current level.
+
+  Unlock All Vertexes      Unlocks all locked terrain vertices.
+  (Ctrl+U)                 Used when modifying terrain that was
+                           previously locked for edge alignment with
+                           adjacent levels.
+
+  Switch Density           Change brush density (NumPad 0).
+  (NumPad 0)
+
+  Switch Brush             Change brush shape (NumPad 1).
+  (NumPad 1)
+
+  Define Random Brush      Toggle random brush mode. When active,
+  (Ctrl+R)                 brush strokes have random variation for
+                           more natural-looking results.
+
+  Draw Texture Grid        Show/hide the texture grid overlay on
+  (Ctrl+G)                 terrain. Helpful for precise texture work.
+
+  Draw Sharp Edges         Highlight sharp terrain edges. Useful for
+  (Ctrl+E)                 finding and fixing terrain artifacts.
+
+  Draw Passing Marks       Show/hide terrain passing marks — the
+  (Ctrl+G)                 colored indicators showing where NPCs can
+                           and cannot walk.
+
+  Terrain Passing Mode     Toggle paint mode for terrain passing.
+  (Ctrl+T)                 Allows you to manually paint walkable and
+                           non-walkable areas on the terrain.
+
+  Show Bboxes              Toggle bounding box display on objects.
+
+  Show Vis                 Toggle visibility rendering information.
+
+  Display Toggles:
+    Draw Objects (Alt+O)        Show/hide all placed objects.
+    Draw Markers (Alt+M)        Show/hide all markers.
+    Draw Sound Objects (Alt+S)  Show/hide sound emitters.
+    Draw Houses Ext. (Alt+E)    Show/hide building exteriors.
+    Draw Houses Int. (Alt+I)    Show/hide building interiors.
+    Draw Distant Land           Show/hide distant terrain rendering.
+
+  Play Level Sounds        Toggle playback of ambient sounds in the
+                           editor viewport.
+
+  Game Hero & Camera       Place the game character into the level for
+  (Alt+H)                  first-person testing. Move with WASD.
+                           Excellent for checking scale, walkability,
+                           and overall feel of your level.
+
+
+OPTIONS MENU
+────────────
+  Options                  Configure mouse/keyboard movement speeds,
+                           visibility distance, fog, wind, and other
+                           editor preferences. Adjust to taste.
+
+  Set Resolution           Set the editor's screen resolution.
+
+
+QUICK SELECTION BAR
+───────────────────
+Located directly below the Top Menu Bar. Provides one-click access
+to the most common operations:
+
+  Icon    Function
+  ──────  ────────────────────────────
+  [+]     Create New Level
+  [📂]    Open Existing Level
+  [💾]    Save Current Level
+  [🔗]    Load Connected Levels
+  [⚙️]    Level Settings (Properties)
+  [🌍]    World Configuration
+
+
+================================================================================
+  SECTION 4 — LEVEL SETTINGS  (Properties Dialog)
+================================================================================
+
+Access via: Tools → Properties (or the ⚙️ icon in the Quick Selection
+Bar).
+
+This dialog controls the fundamental properties of your level. Set
+these correctly BEFORE you start building.
+
+  Setting                  Description
+  ───────────────────────  ────────────────────────────────────────
+  Level Name               A descriptive name for the level. This is
+                           for your reference and may appear in-game
+                           in certain contexts.
+
+  Level File Name          The actual filename (e.g. "Map_F01"). This
+                           determines the .lnd file name and must
+                           follow the game's naming convention for
+                           the mod system to work.
+
+  Size                     The dimensions of the level tile:
+                             Small    = 64 x 64
+                             Medium   = 128 x 128  ← STANDARD
+                             Large    = 256 x 256
+                             Custom   = any value (may crash above 512)
+
+                           Use Medium (128x128) for standard game-
+                           compatible levels. All vanilla map tiles
+                           are this size and fit together like a grid.
+
+  Underground Level        Checkbox — check this to mark the level as
+                           an underground map (dungeon/cave). This
+                           changes the rendering mode and enables
+                           dungeon-specific features.
+                           (See Dungeon Guide for full details.)
+
+  Connected Levels         Six fields representing the levels connected
+                           to this one in a grid pattern:
+
+                             ┌───────┬───────┬───────┐
+                             │       │ Upper │       │
+                             ├───────┼───────┼───────┤
+                             │ Left  │ THIS  │ Right │
+                             ├───────┼───────┼───────┤
+                             │       │ Lower │       │
+                             └───────┴───────┴───────┘
+
+                           For surface-to-dungeon links:
+                             Lower = underground level filename
+                             Upper = surface level filename (set in
+                                     the underground level's properties)
+
+MAP NAMING CONVENTION
+─────────────────────
+Two Worlds uses a grid coordinate system for map tiles:
+
+  Map_[Letter][Number].lnd
+  Examples: Map_A01, Map_B05, Map_F03
+
+Letters represent columns (East-West), numbers represent rows
+(North-South). When creating mods that replace vanilla maps, your
+files must use the exact same names as the originals.
+
+For new custom maps used in standalone mods, you can use any valid
+name following the Map_ prefix convention.
+
+
+================================================================================
+  SECTION 5 — WORLD CONFIGURATION  (Sky, Weather & Templates)
+================================================================================
+
+Access via: Tools → World Configuration (or the 🌍 icon).
+
+The World Configuration dialog controls the visual atmosphere of
+your level — sky, clouds, lighting, fog, wind, and weather.
+
+KEY FEATURES
+────────────
+  • Sky dome and cloud layer settings
+  • Ambient and directional lighting
+  • Fog distance and density
+  • Wind speed and direction (affects grass and particle systems)
+  • Day/night cycle parameters
+  • Weather presets (clear, rain, storm, etc.)
+
+For surface levels, these settings define the outdoor atmosphere.
+For underground levels, this dialog is where you can load predefined
+cave terrain templates (e.g. "Cave 1", "Cave 2") that provide
+pre-built terrain geometry and textures as a starting point.
+
+TIP: Experiment with different presets before fine-tuning individual
+parameters. The vanilla game includes many atmospheric setups you can
+study and modify.
+
+
+================================================================================
+  SECTION 6 — MODE SELECTION BAR  (The Four Main Modes)
+================================================================================
+
+The Mode Selection Bar is located on the left side of the editor
+window. It contains four buttons that switch between the editor's
+main editing modes. You will constantly cycle between these.
+
+
+MODE 1: TERRAIN SHAPE AND TEXTURE  (Mountain Icon)
+───────────────────────────────────────────────────
+This is the combined terrain sculpting and texture painting mode.
+When active, the left panel shows brush settings and texture slots.
+
+SCULPTING:
+  • Left click + drag:  Raise terrain
+  • Shift + Left click: Lower terrain
+  • Brush controls in the left panel:
+      Shape:   Circular, square, diamond, etc. (switch with NumPad 1)
+      Size:    Radius of the brush effect
+      Power:   Strength of each brush stroke
+      Density: How many vertices are affected (switch with NumPad 0)
+
+  • Use Ctrl+R to toggle Random Brush mode for more organic results.
+  • The editor supports custom stamps (see Section 8).
+
+TEXTURING:
+  • Select a texture from the slots in the left panel.
+  • Paint on the terrain with Left Mouse Button.
+  • Multiple texture layers can overlap — each paint stroke blends
+    with existing textures.
+  • Use the Texture Set Manager (Section 7) to change which textures
+    are available in the slots.
+
+
+MODE 2: LIQUID POOLS  (Water Drop Icon)
+───────────────────────────────────────
+This mode allows you to create bodies of water and lava.
+
+  • Click and drag to define a water/lava area.
+  • Water height can be set globally via console:
+      editor.setwaterh 850
+    (850 is a typical default value)
+  • Water color can be set via:
+      Editor.SetWaterColor R G B
+    (Values as floats: 1 0 0 = red, 0 0 1 = blue)
+
+  • To remove all water: Tools → Remove Water
+
+
+MODE 3: COLORS  (Palette Icon)
+──────────────────────────────
+This mode allows you to free-paint colors directly onto the terrain.
+This is separate from texture painting — it applies a color tint
+overlay to the existing textures.
+
+  • Select a color from the Color picker.
+  • Paint on the terrain with Left Mouse Button.
+  • Useful for adding subtle color variation to landscapes, marking
+    paths, or creating visual effects.
+  • For underground levels, the terrain color system is critical:
+    White = visible/accessible terrain, Black = void/inaccessible.
+    (See Dungeon Guide for details.)
+
+  Console commands for colors:
+    Editor.FillWorldWithColor 0xFFFFFFFF    (fill all with white)
+    Editor.FillWorldWithColor 0xFF000000    (fill all with black)
+    Editor.ReplaceColor oldColor newColor   (batch color swap)
+
+
+MODE 4: OBJECTS  (Cube Icon)
+────────────────────────────
+This mode is for placing all content objects in your level:
+buildings, trees, rocks, NPCs, markers, furniture, props, creatures,
+and everything else that populates the world.
+
+  • The left panel becomes the Objects browser with categories.
+  • Click an object to select it for placement.
+  • Left click on the terrain to place it.
+  • Use the NumPad controls to position, rotate, and adjust.
+  • Shift + Left Click on a highlighted object to DELETE it.
+
+The Objects browser contains thousands of items organized in
+categories. Browse carefully — many useful objects are hidden in
+sub-categories you might not expect.
+
+For marker placement (teleport destinations, spawners, etc.), markers
+are also found in the Objects section. Toggle marker visibility with
+Alt+M.
+
+
+================================================================================
+  SECTION 7 — TEXTURE SYSTEM  (Texture Sets & Management)
+================================================================================
+
+The editor's texture system is based on Texture Sets — predefined
+collections of terrain textures, grass/foliage billboards, and lava
+textures that work together.
+
+ACCESS
+──────
+Click the "Setup textures set" button at the top of the left panel
+when in Terrain Shape and Texture mode.
+
+
+THE TEXTURE SET MANAGER
+───────────────────────
+The manager window has three main areas:
+
+  LEFT COLUMN — Texture Slots
+  ────────────────────────────
+  Lists all textures in the current set, divided into three groups:
+
+    1. Terrain Textures:  16 slots for ground textures (grass, rock,
+       dirt, snow, sand, cobblestone, etc.)
+
+    2. Grass/Foliage:     8 slots for 3D billboard textures (grass
+       blades, bushes, ferns, flowers, etc.)
+
+    3. Lava Textures:     4 slots for lava/magma surfaces.
+
+  CENTER — Render Preview
+  ───────────────────────
+  A real-time preview window showing the selected texture in detail.
+  Also displays 3D billboard textures (grass, bushes) for accurate
+  visualization of how they will look in-game.
+
+  RIGHT COLUMN — Available Sets
+  ─────────────────────────────
+  Lists all available texture sets. Click on a set to load it into
+  the left column slots.
+
+  BOTTOM — Terrain Textures Browser
+  ──────────────────────────────────
+  Lists all individual .dds texture files available in the game.
+  Select one and use the Add button to add it to the current set.
+
+MANAGING TEXTURES
+─────────────────
+  Add (+) Button:    Select a texture in the Terrain Textures browser,
+                     then click Add to insert it into the current set.
+
+  Delete (-) Button: Highlight a texture in the current set (red box
+                     appears in render), then click Delete to remove.
+
+  Texture Set Name:  Enter a name for your custom set.
+  Save Set:          Save the current set with the entered name.
+  New Set:           Clear all textures for a fresh start.
+  Reload:            Reload the currently selected set. You MUST reload
+                     after any modifications for changes to take effect.
+  Close:             Close the Texture Set Manager.
+
+WARNING: Do NOT modify and overwrite an original game texture set.
+Always save as a new name to avoid corrupting game data.
+
+TEXTURE LOCKING
+───────────────
+You can lock textures to prevent accidental painting over them:
+
+  Console: Editor.LockTexture 7 1
+    (Lock texture 7: 1=locked, 0=unlocked)
+
+This is useful when you want to paint new textures without disturbing
+existing ones.
+
+
+================================================================================
+  SECTION 8 — STAMPS SYSTEM  (Advanced Brushes)
+================================================================================
+
+One of the editor's most unique features is the Stamp system. Stamps
+allow you to use any 3D model from the game as a terrain brush. This
+means you can stamp body shapes, rock formations, building outlines,
+or any other mesh onto the terrain — both for sculpting and texturing.
+
+ACCESS
+──────
+The Stamps section is in the bottom area of the Texture Set Manager.
+There are 15 stamp slots, each corresponding to a number on the
+Stamp selection pad in the main editor panel.
+
+HOW TO SET UP A CUSTOM STAMP
+─────────────────────────────
+  1. Open the Texture Set Manager (Setup textures set button).
+
+  2. FIRST: Change the texture set name and save as a new set.
+     This prevents overwriting an original game set.
+
+  3. Find the "translateStampObject" field for the stamp slot you
+     want to assign (00 through 14).
+
+  4. Click the "..." button next to it to open the model file browser.
+
+  5. Browse the game's model folders and select a .vdf file (the
+     game's 3D model format). Any model can be used — characters,
+     objects, environmental pieces, anything.
+
+  6. Click Open to assign the model as a stamp.
+
+  7. Save and Reload the texture set.
+
+  8. Back in the editor, select the stamp number you assigned and
+     start painting/sculpting. The brush will use the 3D model's
+     shape.
+
+EXAMPLE USE CASES
+─────────────────
+  • Use a rock formation model as a stamp to create natural-looking
+    rocky terrain by stamping it across a hillside.
+  • Use a path or road model to quickly lay down road shapes.
+  • Use body or character models for... creative terrain sculpting.
+
+The Specials folder in the stamp browser contains additional
+predefined stamp shapes beyond the Default set.
+
+
+================================================================================
+  SECTION 9 — OBJECTS AND THEIR PLACEMENT  (Complete Guide)
+================================================================================
+
+Objects are everything that exists on your level beyond the terrain
+itself — buildings, trees, rocks, NPCs, markers, furniture, light
+sources, sound emitters, and hundreds of other items.
+
+
+THE OBJECTS BROWSER
+───────────────────
+When in Objects mode (Mode 4), the left panel becomes the Objects
+browser. Objects are organized in a tree structure with categories
+and subcategories. Major categories include:
+
+  • Environment:   Trees, rocks, grass patches, natural formations
+  • Buildings:     Houses, castles, towers, walls, bridges
+  • Furniture:     Tables, chairs, beds, shelves, barrels, crates
+  • Characters:    NPCs, enemies, animals, creatures
+  • Markers:       Teleport destinations, spawners, triggers
+  • Effects:       Particle emitters, light sources, sound objects
+  • Props:         Weapons, armor, items, treasures, chests
+  • Dungeon:       Cave entrances/exits, dungeon-specific objects
+
+Browse thoroughly — many useful objects are nested deep in sub-
+categories.
+
+
+PLACING OBJECTS
+───────────────
+  1. Find and click the desired object in the browser.
+  2. Move the mouse to the desired position in the viewport.
+  3. Left-click to place the object.
+  4. Use the NumPad to fine-tune position and rotation (Section 2).
+
+SELECTING & MANIPULATING
+────────────────────────
+  • Hover the mouse over an object — a red highlight bar appears.
+  • Press Numpad 5 to select it (color changes to confirm).
+  • Use NumPad keys to move, raise, lower, and rotate.
+  • Press Numpad Del to deselect.
+
+DELETING OBJECTS
+────────────────
+  • Hover over an object until highlighted (red bar visible).
+  • Press Shift + Left Click to delete it.
+
+OBJECTS VS. MARKERS
+───────────────────
+This is a critical distinction for beginners:
+
+  Objects are visible in-game — the player can see and sometimes
+  interact with them (buildings, trees, chests, NPCs).
+
+  Markers are invisible in-game — they serve as data points that
+  control game behavior (spawn locations, teleport targets, triggers,
+  quest markers). You can only see them in the editor when Draw
+  Markers (Alt+M) is enabled.
+
+Common marker types:
+  • MARKER_TELEPORT_DEST_FROMUPPER  — dungeon entry point
+  • MARKER_TELEPORT_DEST_FROMLOWER  — dungeon exit return point
+  • Spawner markers (animal spawner, enemy spawner)
+  • Quest markers
+  • Sound markers
+
+CONSOLE COMMANDS FOR OBJECTS
+────────────────────────────
+  Editor.SetDrawMapMarkers MARKER_ENEMY_* 0xFFFF0000
+    Highlight all enemy markers in red on the map view.
+
+  Editor.SetDrawMapObjects OBJ_ID_* 0xFFFF0000
+    Highlight specific object types on the map.
+
+  editor.MapMarkerSize 2
+    Change marker display size for better visibility.
+
+  Editor.DeleteBadMarkers
+    Remove broken/invalid markers.
+
+  Editor.DeleteAllObjects objectID
+    Remove all instances of a specific object type.
+
+  Editor.ReplaceObject old new
+    Replace all instances of one object with another.
+
+  createEd x y z alpha [beta phi] objectID [meshVariant] [meshScale]
+    Place an object at exact coordinates via console.
+    z == 0 means ground level.
+
+
+================================================================================
+  SECTION 10 — FAQ  (Common Questions from the Community)
+================================================================================
+
+These answers come from the TW modding community (Discord) and
+address the most common questions new editors have.
+
+
+Q: How do gates behave?
+───────────────────────
+It depends on context:
+  • In existing villages and castles: Gates can automatically open
+    when the player approaches.
+  • Outside populated areas: Gates stay closed, but the player can
+    manually open/close them.
+  • In custom-built structures: Gates will most likely NOT auto-open.
+    The player must interact with them manually.
+
+
+Q: How do chests and loot work?
+───────────────────────────────
+  • Place chest objects from the Objects section.
+  • Players can open any placed chest by lock-picking.
+  • Loot content is ALWAYS randomly generated based on the player's
+    current character level.
+  • You do NOT control what specific items appear — only whether
+    a chest exists at that location.
+
+
+Q: How do I place working enemies?
+───────────────────────────────────
+There are two methods, but only one works properly:
+
+  CORRECT: Use Spawner Markers
+  Place spawner markers (found in the Markers section of the Objects
+  browser). These generate living, active enemies at their location
+  when the game runs.
+    • Standard enemies: 2-6 spawn per marker
+    • Tough enemies/giants: 1-3 spawn per marker
+
+  WRONG: Place NPC Models Directly
+  If you place an NPC character model directly, it will appear in-game
+  but will be completely inert — it stands still like a statue. It
+  won't move, patrol, or react unless directly attacked. The NPC's
+  name will also display as generic/unusual text.
+
+  ALWAYS use spawner markers for functional enemies.
+
+
+Q: My objects are floating / sunk into the ground!
+───────────────────────────────────────────────────
+Use NumPad + and - to raise and lower objects. Some objects have
+their origin point offset, so they may need manual height adjustment.
+You can also use the console command to batch-adjust:
+
+  editor.AddZToAll xxx
+  (adds a height offset to all objects on the level)
+
+After placing objects, always run Alt+U (Update Terrain Passing) and
+Alt+W (Update Walkable Objects) to ensure proper collision.
+
+
+Q: Where are the save files?
+─────────────────────────────
+The editor saves levels to the Saves\Levels\ folder inside your game
+directory. The file format is .lnd (level data) with an accompanying
+.bmp (minimap bitmap). The editor adds an "s" suffix to filenames
+(e.g. Map_F01s.lnd) — this must be removed when building a mod.
+
+
+================================================================================
+  SECTION 11 — CONSOLE COMMANDS  (Beginner-Friendly Selection)
+================================================================================
+
+The console is opened with the C key. It supports auto-complete:
+start typing a command and matching options appear. You can also
+execute script files with @ (e.g. @edundgr.txt).
+
+Below is a curated selection of the most useful commands for
+beginners, organized by purpose.
+
+
+SAVING & LOADING
+────────────────
+  editor.savelevel
+    Save the current level immediately.
+
+  editor.LoadLevel level.lnd
+    Load a specific level file.
+
+  editor.SaveLevelBmp
+    Save the level's minimap bitmap.
+
+  editor.SaveAllLevels
+    Save all currently loaded levels at once.
+
+
+TERRAIN HEIGHT
+──────────────
+  editor.loadraw filename.raw BitsCnt HeaderSize TotalSizeX TotalSizeY
+    StartX StartY StartAltitudeG HeightScaleG
+    Import terrain height data from a .raw file.
+    Example: editor.loadraw 3a.raw 16 0 513 513 0 0 16 10
+    Constraints: StartAltitudeG >= 2;
+                 StartAltitudeG + HeightScaleG < 128
+
+  editor.saveRaw filename.raw BitsCnt HeaderSize TotalSizeX TotalSizeY
+    StartX StartY StartAltitudeG HeightScaleG
+    Export terrain height data to .raw file.
+    Example: editor.saveRaw Map_C01.raw 16 0 512 512 0 0 0 1
+
+  Editor.SetSquareAltitudesAverage avrgRange factor
+    Flatten/smooth terrain. avrgRange = calculation range (0,1,...),
+    factor = smoothing strength (0.5, 1, ...).
+    Example: Editor.MakeAverageAltitude 2 1
+
+  editor.AddZToAll xxx
+    Add a height offset to all objects on the level.
+
+
+TEXTURING
+─────────
+  Editor.TextureFromBitmapEx filename.bmp startX startY
+    Apply texturing from a bitmap file.
+    Example: Editor.TextureFromBitmapEx GENtexture.bmp 1024 2048
+
+  Editor.LockTexture textureNum lockState
+    Lock/unlock a texture slot.
+    Example: Editor.LockTexture 7 1  (lock texture 7)
+
+  Editor.ReplaceTexture oldNum newNum
+    Swap one texture with another across the entire level.
+
+  Editor.ReplaceTexSet oldPath newPath
+    Replace a texture set file reference.
+    Example: Editor.ReplaceTexSet "terrains\Texture_28.dds"
+             "terrains\Texture_03.dds"
+
+  Editor.CleanupInvisibleTextures 1
+    Remove invisible texture data to reduce file size.
+
+
+GRASS & FOLIAGE
+───────────────
+  editor.AddGrassOnTexture texNum minTexAlpha grassNum grassQty multiply
+    Batch add or remove grass on a specific texture.
+    grassQty: -1.0 to 1.0 (negative = remove).
+    Example: editor.AddGrassOnTexture 3 128 1 0.5 1
+
+  Editor.ClampGrassToLimit grassNum limit
+    Clamp grass density to a maximum. grassNum 1-8 (from 1, not 0!),
+    limit 0.0 to 1.0. Use -1 for all grasses.
+    Example: Editor.ClampGrassToLimit 1 0.5
+
+  Editor.BlurGrass grassNum blurSteps
+    Smooth/blur grass distribution. -1 means all grasses.
+    Example: Editor.BlurGrass -1 10
+
+  Editor.RemoveGrassWhereTexture texNum grassNum respectAlpha
+    Remove grass from a specific texture.
+    Example: Editor.RemoveGrassWhereTexture 5 1 1
+
+  Editor.RemoveGrassWhereWater
+    Remove all grass from water areas.
+
+  editor.ReplaceGrass oldNum newNum
+    Swap grass types.
+
+  editor.setgrasstexture grassNum grassFilePath
+    Change a grass slot's texture file.
+    Example: editor.setgrasstexture 8 grasses/fern.dds
+
+
+AUTOTEXTURING
+─────────────
+  Editor.AutoTextureEx Angle1 Tex1_0 Tex1_1 pct1 Angle2 Tex2_0 ...
+    Automatically apply textures based on terrain slope.
+    Angles define slope thresholds, Tex_0/Tex_1 are texture numbers,
+    pct is percentage.
+    Example: Editor.AutoTextureEx 0.1 1 2 0.2 2 3 0.4 9 10 0.5 9 10
+
+  Editor.TexMixerEx1 Tex1 Pct1 Tex2 Pct2 Tex3 Pct3 Tex4 Pct4 intensity
+    Mix textures by percentage.
+    Example: Editor.TexMixerEx1 1 30 2 30 3 30 4 30 100
+
+  Editor.TexMixerEx2 ... (same as Ex1 + WhereTextureExist parameter)
+    Mix textures only where a specific texture already exists.
+    Example: Editor.TexMixerEx2 1 30 2 30 3 30 4 30 8 10
+
+
+OBJECTS & MARKERS
+─────────────────
+  editor.SetCreateRect left top right bottom [MinZ MaxZ]
+    Define a rectangular area for batch object operations.
+
+  editor.SetCreateMinMaxZ MinZ MaxZ
+    Set height range for batch operations (0 0 = no limit).
+
+  editor.CreateObjectsOnArea objectID count minRange [standMask]
+    Batch-create objects in the defined rectangle.
+    standMask: 0x100 = align to lowest ground, 0x7 = glue to ground.
+    count = 0 → defines minRange for that objectID.
+
+  editor.CreateObjectsNearObjectsOnArea objectID nearObjectID count
+    minRange maxRange [standMask]
+    Create objects near existing objects of a specific type.
+
+  editor.DeleteObjectsOnArea objectID count
+    Remove objects from the defined area. count = -1 for all.
+    objectID = "NULL" for all objects, "Created" for recently created.
+
+  editor.ResetCreateObjectsOnArea
+    Reset the creation rectangle and height limits.
+
+  editor.SetTextureOnObjects objectID texNum count fullRange maxRange
+    Paint textures around objects. Useful for placing dirt/mud under
+    buildings or grass around trees.
+
+  editor.AddCreateObjectsLockedTexture texNum minTexAlpha
+    Prevent batch object creation on a specific texture.
+    Use "clear" to reset.
+
+  Editor.SetCreateObjectsOnType bWater bObjects bWalkable bHouses
+    bNotPassable bNotWalkable
+    Control where batch-created objects can spawn (on water, on other
+    objects, inside houses, etc.)
+
+  Editor.DeleteObjectsOnEdges
+    Remove objects that ended up on the edges of the level.
+
+  Editor.DeleteObjectsOnEdgesMargin 32
+    Remove objects near edges with a margin (32 = 0.5m, 256 = 4m).
+
+
+CONNECTED LEVEL OPERATIONS
+──────────────────────────
+  Editor.LoadObjectsForConnectedLevel 0/1
+    Toggle loading objects from connected adjacent levels.
+
+  Editor.CopyAltitudeFromConnected size mode
+    Copy terrain heights from connected level's edge for seamless
+    transitions. mode: 0=flat, 1=mirror, 2=mirror inverted,
+    3=linear approximation.
+
+  Editor.CopyEdgeFromConnected
+    Copy the edge vertex line from connected level.
+
+  Editor.LockVertexesWithConnectedLevel size
+    Lock terrain vertices along the shared edge.
+
+  Editor.ClearLockedVertexes
+    Unlock all locked vertices.
+
+
+LEVEL MANAGEMENT
+────────────────
+  editor.setlevelsize Level.lnd width height offsetX offsetY New.lnd
+    Resize a level and save as new file.
+    Example: editor.setlevelsize Map_A01.lnd 128 128 16 16 New_A01.lnd
+
+  editor.joinlevels MapA MapB MapC MapD Joined.lnd
+    Merge multiple levels into one (textures must be synchronized).
+    Example: editor.joinlevels Map_E03.lnd Map_F03.lnd Map_E04.lnd
+             Map_F04.lnd Joined_EF34.lnd
+
+  Editor.SaveAllLevelsToTexture layer mode output.tga colors...
+    Export level data as texture image for visualization.
+
+  Editor.foreachlevel @script.txt
+    Run a script on every level (surface + underground).
+
+  Editor.foreachsurfacelevel @script.txt
+    Run a script on every surface level.
+
+  Editor.foreachundergroundlevel @script.txt
+    Run a script on every underground level.
+
+
+DISPLAY & DEBUG
+───────────────
+  Editor.SetDrawMapMarkers MARKER_TYPE 0xFFRRGGBB
+    Highlight markers on the map. Use "x" to turn off.
+    Example: Editor.SetDrawMapMarkers MARKER_ENEMY_* 0xFFFF0000
+
+  Editor.SetDrawMapObjects OBJ_ID 0xFFRRGGBB
+    Highlight objects on the map. Use "x" to turn off.
+
+  editor.MapMarkerSize 2
+    Set marker icon size on the map.
+
+  Editor.RemoveLocalFog
+    Clear fog from the level.
+
+  editor.stepidleunit 0/1
+    Toggle NPC idle animations in the editor.
+
+
+PHYSICS (Required before exporting as mod!)
+───────────────────────────────────────────
+  editor.cookphysx.mode geomipmap
+  editor.cookphysx.strength = 1.0
+  editor.cookphysx.overwrite = 1
+  editor.cookphysx.pc out
+
+  Run these four commands in sequence to generate physics data.
+  The .phx file is written to Saves\Levels\Physic\.
+  Must be done for EVERY level (surface and underground).
+  The .phx file must NOT be compressed in the .wd archive.
+
+
+BATCH SCRIPTS
+─────────────
+The editor supports executing text files as command scripts:
+
+  @filename.txt
+    Execute all commands in the file, line by line.
+
+Useful batch scripts included in the SDK:
+
+  @edundgr.txt  — Finalize underground levels (set passable terrain,
+                   paint inaccessible areas black).
+
+  @edtex.txt    — Synchronize textures between connected levels
+                   (load connected, copy edges, copy textures, save).
+
+
+================================================================================
+  SECTION 12 — NEXT STEPS
+================================================================================
+
+Now that you understand the editor, here is where to go next:
+
+
+TO MAKE YOUR MAP PLAYABLE
+─────────────────────────
+Follow the "TW1 Map to Mod Conversion Guide" for the complete
+process: cook PhysX, generate LevelHeaders, copy and rename files,
+pack into .wd archive, and activate via registry.
+
+
+TO CREATE DUNGEONS / CAVES
+──────────────────────────
+See "TW1 Dungeon Creation Guide Part 1" for the manual method
+(creating underground levels within the main editor), and
+"Part 2" for the SDK's dedicated Dungeon Editor tool.
+
+
+TO MODIFY GAME PARAMETERS
+──────────────────────────
+The game's data (units, items, skills, AI, combat) is defined in
+TwoWorlds.xls in the Parameters folder. Edit with Microsoft Excel,
+then compile with the Makra.xls macro to generate TwoWorlds.par.
+WARNING: Parameter changes affect game balance significantly and
+should be tested thoroughly.
+
+
+TO CREATE CUSTOM 3D MODELS
+──────────────────────────
+Install the Maya plugins from the MayaPlugins folder. See the
+Maya plugins readme.txt in Documentation for setup instructions.
+Models are exported as .vdf files.
+
+
+TO EDIT QUESTS
+──────────────
+Use WhizzEdit from the WhizzEdit folder. Requires .NET Framework 2.0.
+Contains quest data from version 1.5.
+
+
+TO EDIT SCRIPTS (Game Logic)
+────────────────────────────
+Use EarthC.exe to compile and EarthCdbg.exe to debug EarthC scripts.
+The Scripts folder contains source files from version 1.5.
+
+
+COMMUNITY RESOURCES
+───────────────────
+  • ModDB SDK Download:
+    moddb.com/games/two-worlds/downloads/two-worlds-software-
+    development-kit-tools-13-installer
+
+  • InsideTwoWorlds (Miraheze Wiki):
+    insidetwoworlds.miraheze.org
+    Basic mod installation guides and community information.
+
+  • Buglord's Tools (wdio.py, Mod Selector):
+    Essential for .wd packing and mod activation. Find on ModDB
+    or ask in the TW Discord community.
+
+  • 4GB Patch:
+    ntcore.com/4gb-patch/
+    Recommended for playing with mods to avoid memory crashes.
+    Steam users: must create a desktop shortcut from the game folder;
+    the patch does not work with the Steam launcher shortcut.
+
+
+================================================================================
+  COMPANION GUIDES
+================================================================================
+
+This guide is part of a documentation set for TW1 modding:
+
+  1. TW1 Editor Beginner Guide         ← YOU ARE HERE
+     Complete editor reference
+
+  2. TW1 Map to Mod Conversion Guide
+     From editor save to playable mod
+
+  3. TW1 Dungeon Creation Guide — Part 1: Manual Method
+     Create dungeons using the main editor (Smoothness' approach)
+
+  4. TW1 Dungeon Creation Guide — Part 2: SDK Dungeon Editor
+     Create dungeons using the dedicated block-based tool
+
+
+================================================================================
+  Sources: VinnieMc (Two Worlds Editor Manual v1.2),
+           Reality Pump SDK 1.3 (_info_.txt, Editor console.txt,
+           _patch16_.txt), Smoothness & Medieval_Dev (Discord FAQ),
+           Buglord (community tools), TW Steam/ModDB Community
+  Compiled for the TW Editor community documentation project
+================================================================================

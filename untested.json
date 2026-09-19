@@ -1,0 +1,66 @@
+{
+ "tests": [
+  {
+   "id": "launch-tool-from-hub",
+   "since": "3.0.0",
+   "needs_run": false,
+   "title": {
+    "de": "Ein Werkzeug aus dem Hub starten",
+    "en": "Start a tool from the hub"
+   },
+   "why": {
+    "de": "Der Hub sucht die Programme selbst. Ob er sie auf einem fremden Rechner findet und startet, ist nur hier geprueft.",
+    "en": "The hub looks for the programs itself. Whether it finds and starts them on someone else's PC is only measured here."
+   },
+   "steps": {
+    "de": [
+     "Reiter Werkzeuge oeffnen.",
+     "Ein gruen markiertes Werkzeug anklicken.",
+     "Auf Starten klicken (oder Doppelklick).",
+     "Pruefen: Das Programm geht auf."
+    ],
+    "en": [
+     "Open the Tools tab.",
+     "Click a tool marked green.",
+     "Click Start (or double-click).",
+     "Check: the program opens."
+    ]
+   },
+   "expect": {
+    "de": "Das Werkzeug startet, der Hub bleibt offen.",
+    "en": "The tool starts and the hub stays open."
+   }
+  },
+  {
+   "id": "set-path-remembered",
+   "since": "3.0.0",
+   "needs_run": false,
+   "title": {
+    "de": "Pfad eines Werkzeugs zeigen und merken",
+    "en": "Show a tool's path and keep it"
+   },
+   "why": {
+    "de": "Liegt ein Programm woanders, merkt sich der Hub den Pfad. Ob das nach einem Neustart noch stimmt, ist offen.",
+    "en": "If a program sits elsewhere, the hub keeps the path. Whether that still holds after a restart is open."
+   },
+   "steps": {
+    "de": [
+     "Ein graues Werkzeug anklicken.",
+     "Datei waehlen... und das Programm zeigen.",
+     "Hub schliessen und neu starten.",
+     "Pruefen: Der Eintrag ist gruen und startet."
+    ],
+    "en": [
+     "Click a grey tool.",
+     "Choose file... and point at the program.",
+     "Close the hub and start it again.",
+     "Check: the entry is green and starts."
+    ]
+   },
+   "expect": {
+    "de": "Der Eintrag bleibt gruen, Starten funktioniert.",
+    "en": "The entry stays green and Start works."
+   }
+  }
+ ]
+}
