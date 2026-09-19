@@ -1,0 +1,326 @@
+TW1 PAR Editor - die Anleitung
+==============================
+
+Dieselbe Anleitung zeigt das Programm unter Hilfe > Guide (F1).
+
+======================================================================
+EINSTIEG
+======================================================================
+
+Einstieg
+
+Der PAR Editor oeffnet TwoWorlds.par, die Parameterdatenbank von Two
+Worlds (2007). Darin steht jede Einheit, jede Waffe, jeder Zauber, Trank,
+jede Tuer und jeder Klang: 609 Listen mit 5155 Eintraegen. Der Editor liest
+die Datei, zeigt jedes Feld mit seinem SDK-Namen und schreibt sie Byte fuer
+Byte zurueck.
+
+Das Fenster
+
+- Links der Baum: Gruppen (Spieler, NPCs, Gegner ...) - darunter die
+  SDK-Blaetter (Units, Weapon, Traps) - darunter die Eintraege.
+- Oben Gruppe und Filter: das Dropdown zeigt eine Gruppe, das Filterfeld
+  laesst nur passende Eintraege stehen.
+- Rechts die Felder des gewaehlten Eintrags: Name, Typ, Wert. Ueber dem
+  Namen schweben zeigt die Beschreibung.
+- Unten die Statusleiste: was zuletzt passiert ist, rechts Hinweise.
+
+Tastenkuerzel
+
+  Taste   Wirkung
+  Strg+O   PAR oeffnen
+  Strg+S   Speichern
+  Strg+Umschalt+S   Speichern unter
+  Strg+E   JSON exportieren
+  Strg+I   JSON importieren
+  Strg+F   Filterfeld
+  Enter / F3   Naechster Treffer
+  Esc   Filter leeren
+  Strg+Z / Strg+Y   Rueckgaengig / Wiederholen
+  F1   Dieser Guide
+Quelle: tw1_par_editor.py, _bind_keys
+
+======================================================================
+ERSTES ERGEBNIS IN 10 MINUTEN
+======================================================================
+
+Erstes Ergebnis in 10 Minuten
+
+Ziel: der Wolf haelt doppelt so viel aus, und das Spiel zeigt es.
+
+1. Oeffnen (Strg+O) und WDFiles\Update16.wd im Spielordner waehlen.
+   Der Editor findet Parameters\TwoWorlds.par im Archiv, entpacken ist
+   nicht noetig. Nicht Parameters.wd nehmen, die traegt das alte
+   1.0-Layout (der Editor warnt).
+2. Die Statusleiste meldet "608 lists matched to SDK sheets".
+3. Filtern: units wolf tippen. Es bleiben 9 Eintraege, die Gruppe
+   Gegner ist offen.
+4. MO_WOLF_01 anklicken, rechts maxHP suchen (Feld 6) und initParamHP
+   (Feld 34). Werte verdoppeln.
+5. Speichern (Strg+S). Weil die Par aus dem Spielarchiv kommt, fragt der
+   Editor nach einem Namen im Ordner Mods\, zum Beispiel
+   MeineParameter.wd. Update16.wd bleibt unberuehrt.
+6. Die Mod laedt beim naechsten Spielstart. Im Mod Manager kann man sie
+   ein- und ausschalten.
+7. Neues Spiel starten und einen Wolf suchen.
+
+======================================================================
+GRUPPEN UND FILTER
+======================================================================
+
+Gruppen und Filter
+
+Gruppen
+
+Die Par besteht aus 609 Listen ohne Namen. Jede Liste ist genau ein Blatt
+der SDK-Tabelle TwoWorlds.xls - Units, Weapon, Traps ... Der Editor
+erkennt das Blatt an den Namen der Eintraege und sortiert die Blaetter in
+Gruppen, in denen ein Modder denkt: Spieler, NPCs, Gegner, Waffen ...
+
+Das Blatt Units enthaelt beides, Leute zum Reden und Leute zum Kaempfen.
+Der Editor teilt es nach dem ersten Namen der Liste: CITIZEN, SOLDIER,
+BARTENDER, KARGA, SKELDEN, NPC_ ... sind NPCs, alles andere ist Gegner.
+Die Liste der Praefixe steht im Kapitel Referenz.
+
+Dropdown "Gruppe"
+
+Zeigt nur eine Gruppe im Baum. "Alle" zeigt wieder alles.
+
+Filterfeld
+
+Beim Tippen bleiben nur Eintraege stehen, die passen - im Namen, im
+Blattnamen oder in einem Textfeld wie dem Mesh-Pfad. Mehrere Woerter muessen
+alle passen:
+
+- wolf - alle Woelfe: Einheiten, ihre Stimmen, ihre Modelle
+- units wolf - nur die Einheiten
+- roadsign - findet ueber den Mesh-Pfad alle Wegweiser
+- traps - das ganze Blatt Fallen
+
+Enter oder F3 springt zum naechsten Treffer, Esc leert das Feld, Strg+F
+setzt den Cursor hinein.
+
+======================================================================
+FELDER BEARBEITEN
+======================================================================
+
+Felder bearbeiten
+
+Namen und Beschreibungen
+
+Jedes Feld zeigt [Index], den SDK-Namen, den Typ und den Wert. Die Namen
+kommen aus dem Blatt der Liste; wer mit der Maus ueber dem Namen bleibt,
+sieht die Beschreibung. Rechtsklick auf den Namen: eigenen Namen setzen
+oder den SDK-Namen zurueckholen. Eigene Namen liegen pro Blatt in
+~\tw1_par_labels_v2.json.
+
+Werte
+
+- Ganzzahlen (int32, uint32): auch 0x10 fuer 16.
+- Fliesskomma (float32): Punkt oder Komma.
+- Text (string): frei.
+- Felder mit [] sind Listen; jede Zeile ein Wert.
+
+Roter Rand heisst: der Text ist kein gueltiger Wert. Der alte Wert
+bleibt, die Statusleiste nennt das Feld, und Speichern verweigert, bis es
+stimmt.
+
+Rueckgaengig
+
+Strg+Z nimmt die letzte Aenderung zurueck - eine Feldaenderung, ein
+Duplizieren, Umbenennen, Loeschen oder Zusammenfuehren. Strg+Y wiederholt.
+
+Eintraege
+
+Rechtsklick auf einen Eintrag im Baum: Duplizieren (schlaegt den
+naechsten Namen vor und passt Mesh-Pfade an), Umbenennen, Loeschen.
+Rechtsklick auf eine Liste: neuen leeren Eintrag anlegen.
+
+Speichern und Sicherung
+
+Strg+S schreibt die Datei an Ort und Stelle. Vorher wandert die Fassung von
+der Platte nach _backup\<Name>.<Zeit>.par daneben - einmal pro Datei und
+Sitzung. Datei > Sicherung wiederherstellen holt eine davon zurueck.
+
+======================================================================
+VERGLEICHEN UND ZUSAMMENFUEHREN
+======================================================================
+
+Vergleichen und Zusammenfuehren
+
+Der zweite Reiter vergleicht zwei Par-Dateien Feld fuer Feld.
+
+1. Source laden: deine Datei, in die etwas hinein soll.
+2. Input laden: die Datei mit den Aenderungen, etwa die Par einer
+   anderen Mod.
+3. Optional Original: die unveraenderte Retail-Par als Bezug; der Pfad
+   wird gemerkt.
+4. Compare druecken. Jede Abweichung ist eine Zeile: Liste, Eintrag,
+   Feld, die drei Werte.
+5. Zeilen anhaken (Klick in die letzte Spalte), Merge Selected into
+   Source, dann Save Merged PAR.
+
+Die Filterknoepfe zeigen nur Geaendertes, nur Neues im Input oder nur, was
+im Input fehlt. Merge ist rueckgaengig (Strg+Z im Editor-Reiter).
+
+======================================================================
+IN EINE MOD PACKEN
+======================================================================
+
+In eine Mod packen
+
+Das Spiel liest eine geaenderte Par nur aus einem WD-Archiv im Ordner
+Mods\. Der Editor schreibt dieses Archiv selbst.
+
+  Geoeffnet   Speichern (Strg+S)
+  WDFiles\Update16.wd (Spielarchiv)   fragt nach einer neuen .wd in Mods\; das Spielarchiv wird nie beschrieben
+  eine Mod-.wd   tauscht die Par in diesem Archiv aus, alle anderen Dateien bleiben; die alte Fassung kommt in den Sicherungsordner des Tools (nicht nach Mods\, dort koennte das Spiel sie als Mod laden)
+  eine lose .par   schreibt die .par; mit Speichern unter und Typ .wd entsteht eine Mod
+
+Quelle: tw1_par_editor.py, _save / _save_as / write_par_target
+
+Der Verzeichniseintrag der Par bekommt dieselben Werte wie das Original:
+Pfad Parameters\TwoWorlds.par, Flags 0x39, Ressource
+translateGameParams, Id 1536 und dieselbe GUID. So liefert auch die
+Kira-Mod ihre Par aus, und Spielstaende behalten ihren Par-Fingerabdruck.
+
+Die Mod laedt beim naechsten Start. Ein Registry-Wert
+HKCU\SOFTWARE\Reality Pump\TwoWorlds\Mods = 0 schaltet sie aus, der Mod
+Manager zeigt und schaltet das.
+
+Nur eine Mod mit eigener Par gleichzeitig einschalten: welche gewinnt,
+haengt von der Ladereihenfolge ab und ist nicht vermessen.
+
+Quelle: tw1_par_editor.py, write_par_target / wd_new_with_par / wd_replace_par; Metadaten gemessen an Update16.wd, Yamalin.wd, Elite.wd, revamp.wd
+
+======================================================================
+REFERENZTABELLEN
+======================================================================
+
+Referenztabellen
+
+Gruppen und ihre Blaetter
+
+  Gruppe   SDK-Blaetter
+  Player   Heroes, HeroTalks
+  NPCs   Units, ShopUnits, UnitTalks
+  Enemies   Units
+  Animals & Mounts   BasicUnits
+  Weapons & Missiles   Weapon, MagicClub, Missiles, PierceMissileSlots
+  Armour & Equipment   Equipment, EquipmentArtefacts
+  Magic & Effects   MagicCard, Dynamics
+  Potions & Items   PotionArtefacts, AlchemyFormulaArtefacts, SpecialArtefacts, CustomArtefacts
+  Objects & Buildings   Passives, SimplePassives, Containers, Gates, Teleports, Markers
+  Traps   Traps
+  Sounds & Voices   SoundPack, SoundPacksSet
+  Meshes & Animations   UnitMeshes, BasicUnitsAnimations, UnitsAnimations, UnitsAnimationsFiles, CustomScalers, MeshButtonViewParams, CameraTracks
+  Game Parameters   CommonGameParams, ObjectParticles, InventoryDialogParams, SpecialUpdatesLinks
+  Other   -
+Quelle: categories.py; sheets from TwoWorlds.xls (SDK), counts measured on WDFiles\Update16.wd, 16.09.2026
+
+NPC-Praefixe im Blatt Units
+
+Eine Units-Liste, deren erster Eintrag so beginnt, zaehlt als NPC-Liste: CITIZEN, BARTENDER, CHAR_, KARGA, GIRIZA, SKELDEN, SOLDIER, WARRIOR, MASTER_, SOUL_, SISTER, NPC_, THE_1_COACH, SHOP, TRADER, GUARD, PRIEST, MERCHANT
+
+Quelle: categories.py, NPC_PREFIXES; gemessen an den 95 Units-Listen der Update16-Par
+
+Blaetter mit Feldanzahl
+
+  Blatt   Felder   Gruppe
+  AlchemyFormulaArtefacts   49   Potions & Items
+  BasicUnits   26   Animals & Mounts
+  BasicUnitsAnimations   26   Meshes & Animations
+  CameraTracks   1   Meshes & Animations
+  CommonGameParams   79   Game Parameters
+  Containers   33   Objects & Buildings
+  CustomArtefacts   39   Potions & Items
+  CustomScalers   64   Meshes & Animations
+  Dynamics   17   Magic & Effects
+  Equipment   22   Armour & Equipment
+  EquipmentArtefacts   43   Armour & Equipment
+  Gates   36   Objects & Buildings
+  HeroTalks   158   Player
+  Heroes   130   Player
+  InventoryDialogParams   52   Game Parameters
+  MagicCard   53   Magic & Effects
+  MagicClub   77   Weapons & Missiles
+  Markers   30   Objects & Buildings
+  MeshButtonViewParams   9   Meshes & Animations
+  Missiles   49   Weapons & Missiles
+  ObjectParticles   47   Game Parameters
+  Passives   30   Objects & Buildings
+  PierceMissileSlots   3   Weapons & Missiles
+  PotionArtefacts   101   Potions & Items
+  RollingStones   30   Other
+  ShopUnits   65   NPCs
+  SimplePassives   16   Objects & Buildings
+  SoundPack   6   Sounds & Voices
+  SoundPacksSet   1   Sounds & Voices
+  SpecialArtefacts   47   Potions & Items
+  SpecialUpdatesLinks   1   Game Parameters
+  Teleports   42   Objects & Buildings
+  Traps   77   Traps
+  UnitMeshes   22   Meshes & Animations
+  UnitTalks   6   NPCs
+  Units   65   Units: NPCs / Enemies
+  UnitsAnimations   218   Meshes & Animations
+  UnitsAnimationsFiles   217   Meshes & Animations
+  Weapon   68   Weapons & Missiles
+Quelle: tw1_sdk_fields.json (TwoWorlds.xls, SDK); Feldanzahl = Spalten des Blatts, passt bei 608 von 609 Listen der Update16-Par exakt
+
+Feldtypen
+
+  Id   Name   Kodierung
+  0   int32   i32
+  1   float32   f32
+  2   uint32   u32
+  3   string   dstring
+  4   int32[]   u64 lead + u32 count + i32[]
+  5   float32[]   u64 lead + u32 count + f32[]
+  6   uint32[]   u64 lead + u32 count + u32[]
+  7   string[]   u64 lead + u32 count + dstring[]
+Quelle: tw1_par_editor.py TYPE_NAMES, PAR_FORMAT.md; Array-Kopf gemessen an allen 5155 Eintraegen: u64 = 0 heisst leer, dann folgt keine Anzahl
+
+======================================================================
+FEHLERSUCHE
+======================================================================
+
+Fehlersuche
+
+"Keine Feldnamen, nur [0] [1] [2]"
+
+tw1_sdk_fields.json fehlt neben dem Skript. Die Exe bringt sie mit; beim
+Skript muss sie im selben Ordner liegen.
+
+"WARNING: old 1.0 layout"
+
+Du hast die Par aus Parameters.wd geoeffnet. Sie hat 602 Listen und den
+Helden mit 121 Feldern; die SDK-Namen passen bei 110 Listen nicht. Nimm die
+Par aus Update16.wd (609 Listen, Held mit 130 Feldern, 608 von 609 exakt).
+
+"Gespeichert, im Spiel aendert sich nichts"
+
+Die Par muss als Mod-Archiv in Mods\ liegen und in der Registry auf 1
+stehen. Das Spiel liest die Liste nur beim Start. Liegt eine zweite Mod mit
+eigener Par daneben, gewinnt die zuletzt geladene.
+
+"Wert wird nicht uebernommen"
+
+Roter Rand: kein gueltiger Wert. Die Statusleiste nennt das Feld. Ganzzahlen
+nehmen auch 0x10, Fliesskomma auch Komma.
+
+"Speichern verweigert"
+
+Ein Feld traegt ungueltigen Text. Zurueck zum Eintrag, roten Rand suchen,
+Wert korrigieren oder Strg+Z.
+
+"Ich will die alte Fassung zurueck"
+
+Datei > Sicherung wiederherstellen. Die Kopien liegen in _backup\ neben
+der Datei, eine pro Datei und Sitzung.
+
+"Alle 77-Feld-Eintraege heissen wie Zauberstaebe"
+
+Das war der Fehler bis Version 1.3: Namen nach Feldanzahl. Neun Blattpaare
+teilen sich eine Anzahl. Seit 1.4 kommt der Name vom Blatt der Liste.
+

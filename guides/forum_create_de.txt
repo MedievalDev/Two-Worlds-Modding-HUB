@@ -1,0 +1,57 @@
+CREATE - Gegenstaende ueber die Konsole erschaffen
+=================================================
+
+Quelle: der Beitrag "CREATE Guide" von Phalynx im Forum Tutorials and Howto's
+von InsideTwoWorlds (2007-2014), gelesen im Internet Archive. Neu geschrieben
+und gekuerzt.
+
+Was der Befehl tut
+------------------
+CREATE legt ein Objekt des Spiels vor einen hin. Objekte ohne Parameter - zum
+Beispiel alle Zutaten - erscheinen schon, wenn man ihren Namen allein tippt,
+ganz ohne CREATE.
+
+Vorher noetig
+-------------
+Cheats einschalten: twoWorldsCheats oder thisIsGreatGame in die Konsole
+tippen. Auf der Xbox 360 kostet das die Erfolge; die IDs der
+Bonus-Gegenstaende nicht.
+
+Schreibweise
+------------
+  CREATE OBJEKT(stufe,zusaetze,id)
+
+- Genau ein Leerzeichen, naemlich das zwischen CREATE und dem Objekt. Sonst
+  keine Leerzeichen, sonst wird der Befehl abgelehnt oder tut etwas anderes.
+- stufe: die Stufe des Gegenstands, am besten nahe der eigenen.
+- zusaetze: Zugaben wie Magie.
+- id: die Nummer des Gegenstands.
+- Gross- und Kleinschreibung ist egal.
+
+Ruestungssaetze
+---------------
+  CREATE AR_CHAIN_ARMOUR(stufe,zus,id)        Kette
+  CREATE AR_CHAIN_TROUSERS / _BOOTS / _GLOVES / _HELMET
+  CREATE AR_HALF_PLATE_ARMOUR(...)            Halbplatte, dieselben fuenf Teile
+  CREATE AR_LEATHER_ARMOUR(...)               Leder, dieselben fuenf Teile
+  CREATE AR_PLATE_ARMOUR(...)                 Platte, dieselben fuenf Teile
+
+Weitere Ausruestung
+-------------------
+  CREATE AR_RING_##            Ring, ## ist die id, zum Beispiel AR_RING_14
+  CREATE ROBE_0(stufe,zus,id)  Robe ohne Kapuze
+  CREATE ROBE_1(stufe,zus,id)  Robe mit Kapuze
+  CREATE AR_BUCKLER(stufe,zus,id)   Schilde: Buckler,
+  CREATE AR_ROUNDSHIELD / AR_SHIELD / AR_TOWERSHIELD
+
+Woher die IDs kommen
+--------------------
+Im Forum lagen Bilderlisten je Objektgruppe; die Zahl unter dem Bild ist die
+id. Die Gegenstandsdatenbank von InsideTwoWorlds fuehrte ueber 1100
+Gegenstaende mit ihren Codes.
+
+Fuer Modder
+-----------
+Dieselben Namen stehen in der Parameter-Datenbank des Spiels. Der TW1 PAR
+Editor zeigt jeden Gegenstand mit den SDK-Feldnamen - praktisch, wenn ein
+CREATE-Befehl ein Objekt nennt, das man nachschlagen oder aendern will.

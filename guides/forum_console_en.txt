@@ -1,0 +1,83 @@
+Console and console commands
+============================
+
+Source: the "Howto: Console and commands" thread by Phalynx in the Tutorials
+and Howto's forum of InsideTwoWorlds (2007), read from the Internet Archive.
+Rewritten and shortened; the command names and values are his measurements.
+
+Opening the console
+-------------------
+Press the key below Esc (^ on a German keyboard; the layout decides). From
+patch 1.6 on, Enter opens it as well, and the key can be changed in the
+settings. Commands are not case sensitive and take no prefix. Typing a
+command without a value shows the value it has now.
+
+Three ways to run commands
+--------------------------
+1. Type it into the console.
+2. Batch file: put a text file with one command per line next to
+   TwoWorlds.exe and load it with an @ in front of the name, for example
+   @MyCommands.txt. The file must exist before the game starts, but it may
+   be changed while the game runs.
+3. On every start: a file Parameters\autoexecGame2.con next to
+   TwoWorlds.exe. Create the folder Parameters yourself. To see whether the
+   file is read, put "display.show 1" in it - the engine statistics appear
+   with the menu.
+
+General
+-------
+  display.show        0/1    engine statistics (fps and more)
+  display.fps         0/1    frames per second
+  showInterface       0/1    the whole interface on or off
+  gameRate                   slows the game down or speeds it up
+  jump2                      the character jumps to the middle of the screen
+
+Graphics
+--------
+  engine.shadows             0 turns shadows off
+  engine.tshadows            0 turns the other shadows off
+  engine.useStencilShadows
+  engine.trueWaterRef        water reflections
+  engine.waterReflections    water reflections
+  engine.disableCloth        1 turns cloth physics off
+  engine.dSystemActive
+  engine.autoDOF             1 turns depth of field on
+  engine.autoDOFTolerance    0.1 - 1.0, where the blur starts (0.4)
+  engine.fov                 field of view, given as angle * 0.5
+  engine.fovUpdate           needed so a new fov takes effect
+  engine.gFadeNear / gFadeFar   where the grass fades out
+  engine.farplane            how far the world is drawn
+  engine.alphaFadeNear / alphaFadeFar
+  engine.lod0 / engine.lod1  distances for the levels of detail
+
+Cheats
+------
+  twoWorldsCheats 1   or   thisIsGreatGame 1
+Both switch the game into cheat mode; on the Xbox 360 that costs the
+achievements (bonus item IDs do not). After that:
+  addGold, addExperiencePoints, addParamPoints, addSkillPoints
+  create ...   spawns objects - see the CREATE guide
+
+Day and night
+-------------
+  ec.setDayLength <length> <sunrise> <sunset>     default 60 60 205
+Length in seconds; sunrise and sunset are relative to the length. Changing
+sunrise or sunset does not move sun and moon correctly.
+
+Two settings that were passed around
+------------------------------------
+Strong PC of the time (GeForce 8800):
+  engine.gFadeFar 1400 / gFadeNear 1000 / farplane 2400
+  engine.alphaFadeFar 100 / alphaFadeNear 3400 / lod0 1800 / lod1 2300
+
+Weak PC:
+  engine.tshadows 0, engine.shadows 0, engine.trueWaterRef 0
+  engine.useStencilShadows 0, engine.disableCloth 1
+  engine.waterReflections 0, engine.dSystemActive 0
+  engine.gFadeFar 700 / gFadeNear 500 / farplane 1200
+  engine.alphaFadeNear 1100 / alphaFadeFar 1400 / lod0 800 / lod1 1100
+
+Careful
+-------
+Since patch 1.3 the PhysX commands (speed of the character, opening doors)
+are switched off, so multiplayer cannot be changed from the main menu.

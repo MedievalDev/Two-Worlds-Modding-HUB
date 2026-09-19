@@ -1,0 +1,138 @@
+TW1 WD Packer - die Anleitung
+=============================
+
+Dieselbe Anleitung zeigt das Programm unter Hilfe > Guide (F1).
+
+======================================================================
+EINSTIEG
+======================================================================
+
+Einstieg
+
+Two Worlds packt fast alles in .wd-Archive: das Spiel in WDFiles\, Mods
+in Mods\. Der WD Packer macht zwei Dinge:
+
+- Entpacken: eine .wd auf das Fenster ziehen. Daneben entsteht ein
+  Ordner mit demselben Namen und allen Dateien darin.
+- Packen: einen Ordner auf das Fenster ziehen. Daneben entsteht eine
+  .wd mit demselben Namen.
+
+Mehr gibt es nicht zu tun. Alles, was fuer ein sauberes Zurueckpacken noetig
+ist, schreibt das Tool beim Entpacken selbst mit (Kapitel "Was beim Entpacken
+mitkommt"). Kern ist der WD Repacker (Python) von buglord.
+
+  Taste   Wirkung
+  Strg+O   WD-Archiv entpacken
+  Strg+P   Ordner zu einem WD-Archiv packen
+  F1   Dieser Guide
+Quelle: wd_packer.py, _bind_keys
+
+======================================================================
+ENTPACKEN
+======================================================================
+
+Entpacken
+
+1. Eine .wd aus dem Explorer auf das Fenster ziehen, oder auf
+   WD entpacken... klicken und eine waehlen.
+2. Das Tool entpackt in einen Ordner neben der Datei, benannt wie das
+   Archiv (Yamalin.wd wird Yamalin). Gibt es den Ordner schon und ist er
+   nicht leer, nimmt es Yamalin (2) - nichts wird ueberschrieben.
+3. Der Balken zeigt den Fortschritt, Abbrechen haelt an.
+4. Am Ende steht unten, wie viele Dateien es waren, mit Ordner oeffnen.
+
+Auch Archive des Spiels lassen sich entpacken, sie werden nur gelesen.
+Archive von Two Worlds 2 entpackt der Kern ebenfalls.
+
+======================================================================
+PACKEN
+======================================================================
+
+Packen
+
+1. Den Ordner auf das Fenster ziehen, oder auf Ordner packen... klicken.
+2. Das Tool packt in eine .wd neben dem Ordner, benannt wie der Ordner.
+   Gibt es die schon, fragt es einmal; die alte Fassung kommt vorher in den
+   Sicherungsordner des Tools.
+3. Danach liest es das neue Archiv zurueck und vergleicht jede Datei mit der
+   im Ordner. Erst wenn alles stimmt, ersetzt es die alte .wd.
+4. Ins Spiel kommt die Mod ueber den Ordner Mods\ und den Mod Manager.
+
+In den Ordner WDFiles des Spiels schreibt das Tool nicht, und nicht,
+solange Two Worlds laeuft.
+
+======================================================================
+WAS BEIM ENTPACKEN MITKOMMT
+======================================================================
+
+Was beim Entpacken mitkommt
+
+Im entpackten Ordner liegen neben den Dateien des Spiels bis zu drei kleine
+Dateien. Sie gehoeren nicht ins Spiel; beim Packen liest das Tool sie und
+packt sie nicht mit:
+
+  Datei   Inhalt
+  GUID   Kennung des Archivs (16 Byte)
+  FILETIME   Zeitstempel des Archivs
+  WDFLAGS   Kennzeichen von Dateien, die der Kern beim Packen falsch raten wuerde
+
+Quelle: wdcore.py, KEEP
+
+Manche Dateien (Karten .lnd, Skripte .eco, die Parameter .par) tragen
+im Archiv Metadaten: einen Namen, eine Klassen-Id, eine GUID. Solche Dateien
+beginnen nach dem Entpacken mit einem kleinen gepackten Kopf, in dem das
+steht - so macht es buglords Repacker. Die Werkzeuge von Alchemy Fox (PAR
+Editor, Quest Creator) lesen sie direkt. Wer eine solche Datei von Hand
+aendert, laesst den Kopf stehen.
+
+Gemessen am Spiel und an sieben Community-Mods: nach Entpacken und Packen
+hat jede Datei denselben Inhalt und dieselben Metadaten wie vorher.
+
+======================================================================
+REFERENZ
+======================================================================
+
+Referenz
+
+Welches Kennzeichen eine Datei beim Packen bekommt, wenn im Ordner nichts
+anderes steht:
+
+  Endung   Kennzeichen   Bedeutung
+  .txt, .con, .tga, .cfg, .def, .qtx   0x05   gepackt, Text
+  .phx   0x00   ungepackt (Physik)
+  alle anderen   0x01   gepackt
+  Datei mit Kopf   aus dem Kopf   Metadaten wie im Original
+
+Quelle: wdio.py (buglord), v1_chk_file / _TEXT_FILES_
+
+Weicht das Original davon ab, steht die Datei in WDFLAGS und behaelt ihr
+Kennzeichen. Das Archiv selbst: gepackter Kopf FF A1 D0 31 'WD' 00 02 mit
+GUID, dann die Daten, am Ende das gepackte Verzeichnis und seine Laenge.
+
+======================================================================
+FEHLERSUCHE
+======================================================================
+
+Fehlersuche
+
+"Diese Namen passen nicht in eine .wd"
+
+Das Archiv speichert Dateinamen nur in ASCII und bis 255 Zeichen. Umlaute
+oder lange Pfade im Ordner umbenennen, dann noch einmal packen.
+
+"Two Worlds laeuft"
+
+Das Spiel haelt seine Archive offen. Erst beenden, dann packen.
+
+"Pruefung fehlgeschlagen"
+
+Eine Datei im Ordner wurde waehrend des Packens geaendert, oder der
+Datentraeger hatte einen Fehler. Die alte .wd ist unveraendert; einfach
+noch einmal packen.
+
+Das Packen dauert beim ersten Mal lange
+
+Frisch entpackte Ordner mit tausenden Dateien prueft der Virenscanner beim
+ersten Oeffnen jeder Datei. Gemessen an Shaders.wd (4784 Dateien): 36 s
+beim ersten Packen, 9 s beim zweiten.
+

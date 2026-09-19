@@ -1,0 +1,57 @@
+CREATE - spawning items in the console
+=====================================
+
+Source: the "CREATE Guide" thread by Phalynx in the Tutorials and Howto's
+forum of InsideTwoWorlds (2007-2014), read from the Internet Archive.
+Rewritten and shortened.
+
+What it does
+------------
+CREATE puts an object of the game in front of you. Objects without
+parameters - all ingredients, for example - are spawned by typing their name
+alone, without CREATE.
+
+Before it works
+---------------
+Cheats have to be on: type twoWorldsCheats or thisIsGreatGame in the
+console. On the Xbox 360 that costs the achievements; the IDs of the bonus
+items do not.
+
+How to write it
+---------------
+  CREATE OBJECT(level,enhancements,item id)
+
+- Exactly one space, the one between CREATE and the object. No other spaces,
+  or the command is refused or does something else.
+- level: the level of the item, best near the level of your character.
+- enhancements: additions like magic.
+- item id: the number of the item.
+- Upper or lower case does not matter.
+
+Armour sets
+-----------
+  CREATE AR_CHAIN_ARMOUR(level,enh,id)        chain
+  CREATE AR_CHAIN_TROUSERS / _BOOTS / _GLOVES / _HELMET
+  CREATE AR_HALF_PLATE_ARMOUR(...)            half plate, same five pieces
+  CREATE AR_LEATHER_ARMOUR(...)               leather, same five pieces
+  CREATE AR_PLATE_ARMOUR(...)                 plate, same five pieces
+
+Other equipment
+---------------
+  CREATE AR_RING_##            ring, ## is the id, for example AR_RING_14
+  CREATE ROBE_0(level,enh,id)  robe without a hood
+  CREATE ROBE_1(level,enh,id)  robe with a hood
+  CREATE AR_BUCKLER(level,enh,id)   shields: buckler,
+  CREATE AR_ROUNDSHIELD / AR_SHIELD / AR_TOWERSHIELD
+
+Where the ids come from
+-----------------------
+The forum kept picture lists per object group; the number under each picture
+is the id. The item database of InsideTwoWorlds held over 1100 items with
+their codes.
+
+For modders
+-----------
+The same names appear in the parameter database of the game. The TW1 PAR
+Editor shows every item with the SDK field names - useful when a CREATE
+command names an object you want to look up or change.

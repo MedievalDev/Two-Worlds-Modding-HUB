@@ -1,0 +1,86 @@
+Konsole und Konsolenbefehle
+===========================
+
+Quelle: der Beitrag "Howto: Console and commands" von Phalynx im Forum
+Tutorials and Howto's von InsideTwoWorlds (2007), gelesen im Internet
+Archive. Neu geschrieben und gekuerzt; die Befehlsnamen und Werte sind seine
+Messungen.
+
+Die Konsole oeffnen
+-------------------
+Die Taste unter Esc druecken (auf deutschen Tastaturen ^; die Belegung
+entscheidet). Ab Patch 1.6 oeffnet auch Enter die Konsole, und die Taste
+laesst sich in den Einstellungen aendern. Befehle achten nicht auf Gross- und
+Kleinschreibung und brauchen kein Praefix. Ein Befehl ohne Wert zeigt den
+Wert, der gerade gilt.
+
+Drei Wege, Befehle auszufuehren
+-------------------------------
+1. In die Konsole tippen.
+2. Stapeldatei: eine Textdatei mit einem Befehl je Zeile neben TwoWorlds.exe
+   legen und mit einem @ davor laden, zum Beispiel @MeineBefehle.txt. Die
+   Datei muss vor dem Spielstart da sein, darf aber waehrend des Spiels
+   geaendert werden.
+3. Bei jedem Start: eine Datei Parameters\autoexecGame2.con neben
+   TwoWorlds.exe. Den Ordner Parameters legt man selbst an. Ob die Datei
+   gelesen wird, zeigt "display.show 1" darin - die Engine-Statistik
+   erscheint schon im Menue.
+
+Allgemein
+---------
+  display.show        0/1    Engine-Statistik (fps und mehr)
+  display.fps         0/1    Bilder je Sekunde
+  showInterface       0/1    die ganze Oberflaeche an oder aus
+  gameRate                   bremst das Spiel oder beschleunigt es
+  jump2                      die Figur springt zur Bildmitte
+
+Grafik
+------
+  engine.shadows             0 schaltet Schatten aus
+  engine.tshadows            0 schaltet die anderen Schatten aus
+  engine.useStencilShadows
+  engine.trueWaterRef        Wasserspiegelungen
+  engine.waterReflections    Wasserspiegelungen
+  engine.disableCloth        1 schaltet die Stoffphysik aus
+  engine.dSystemActive
+  engine.autoDOF             1 schaltet Tiefenunschaerfe ein
+  engine.autoDOFTolerance    0.1 - 1.0, ab wo unscharf wird (0.4)
+  engine.fov                 Blickwinkel, als Winkel * 0.5 angegeben
+  engine.fovUpdate           noetig, damit ein neuer fov greift
+  engine.gFadeNear / gFadeFar   wo das Gras ausblendet
+  engine.farplane            wie weit die Welt gezeichnet wird
+  engine.alphaFadeNear / alphaFadeFar
+  engine.lod0 / engine.lod1  Abstaende fuer die Detailstufen
+
+Cheats
+------
+  twoWorldsCheats 1   oder   thisIsGreatGame 1
+Beides schaltet das Spiel in den Cheat-Modus; auf der Xbox 360 kostet das die
+Erfolge (die IDs der Bonus-Gegenstaende nicht). Danach:
+  addGold, addExperiencePoints, addParamPoints, addSkillPoints
+  create ...   erschafft Objekte - siehe die CREATE-Anleitung
+
+Tag und Nacht
+-------------
+  ec.setDayLength <Laenge> <Aufgang> <Untergang>   Standard 60 60 205
+Laenge in Sekunden; Auf- und Untergang zaehlen relativ zur Laenge. Aendert
+man Auf- oder Untergang, wandern Sonne und Mond nicht richtig mit.
+
+Zwei Einstellungen, die damals herumgereicht wurden
+---------------------------------------------------
+Starker Rechner der Zeit (GeForce 8800):
+  engine.gFadeFar 1400 / gFadeNear 1000 / farplane 2400
+  engine.alphaFadeFar 100 / alphaFadeNear 3400 / lod0 1800 / lod1 2300
+
+Schwacher Rechner:
+  engine.tshadows 0, engine.shadows 0, engine.trueWaterRef 0
+  engine.useStencilShadows 0, engine.disableCloth 1
+  engine.waterReflections 0, engine.dSystemActive 0
+  engine.gFadeFar 700 / gFadeNear 500 / farplane 1200
+  engine.alphaFadeNear 1100 / alphaFadeFar 1400 / lod0 800 / lod1 1100
+
+Achtung
+-------
+Seit Patch 1.3 sind die PhysX-Befehle (Tempo der Figur, Tueren oeffnen)
+abgeschaltet, damit der Mehrspielermodus nicht aus dem Hauptmenue heraus
+veraendert wird.

@@ -1,0 +1,324 @@
+TW1 PAR Editor - the guide
+==========================
+
+The tool shows the same guide under Help > Guide (F1).
+
+======================================================================
+GETTING STARTED
+======================================================================
+
+Getting started
+
+The PAR Editor opens TwoWorlds.par, the parameter database of Two Worlds
+(2007). Every unit, weapon, spell, potion, door and sound lives in it: 609
+lists with 5155 entries. The editor reads the file, shows every field with
+its SDK name and writes it back byte for byte.
+
+The window
+
+- Tree on the left: groups (Player, NPCs, Enemies ...) - below them the
+  SDK sheets (Units, Weapon, Traps) - below those the entries.
+- Group and filter on top: the dropdown shows one group, the filter box
+  keeps only matching entries.
+- Fields on the right of the selected entry: name, type, value. Hover a
+  name for its description.
+- Status bar at the bottom: what happened last, hints on the right.
+
+Keyboard shortcuts
+
+  Key   Action
+  Ctrl+O   Open PAR
+  Ctrl+S   Save
+  Ctrl+Shift+S   Save as
+  Ctrl+E   Export JSON
+  Ctrl+I   Import JSON
+  Ctrl+F   Filter box
+  Enter / F3   Next match
+  Esc   Clear filter
+  Ctrl+Z / Ctrl+Y   Undo / Redo
+  F1   This guide
+Source: tw1_par_editor.py, _bind_keys
+
+======================================================================
+FIRST RESULT IN 10 MINUTES
+======================================================================
+
+First result in 10 minutes
+
+Goal: the wolf takes twice the punishment, and the game shows it.
+
+1. Open (Ctrl+O) and pick WDFiles\Update16.wd in the game folder. The
+   editor finds Parameters\TwoWorlds.par inside the archive, no unpacking
+   needed. Do not take Parameters.wd, it carries the old 1.0 layout (the
+   editor warns).
+2. The status bar says "608 lists matched to SDK sheets".
+3. Filter: type units wolf. 9 entries remain, the Enemies group is
+   open.
+4. Click MO_WOLF_01, find maxHP on the right (field 6) and initParamHP
+   (field 34). Double both.
+5. Save (Ctrl+S). Because the par came from the game archive, the editor
+   asks for a name in the Mods\ folder, for example MyParameters.wd.
+   Update16.wd stays untouched.
+6. The mod loads at the next game start. The Mod Manager switches it on and
+   off.
+7. Start a new game and find a wolf.
+
+What the editor does not do: read the par straight from the game or pack it
+as a mod. That is planned for a later version.
+
+======================================================================
+GROUPS AND FILTER
+======================================================================
+
+Groups and filter
+
+Groups
+
+The par consists of 609 lists without names. Every list is exactly one
+sheet of the SDK spreadsheet TwoWorlds.xls - Units, Weapon, Traps ... The
+editor recognises the sheet by the entry names and sorts the sheets into
+the groups a modder thinks in: Player, NPCs, Enemies, Weapons ...
+
+The Units sheet holds both, people to talk to and people to fight. The
+editor splits it by the first name of each list: CITIZEN, SOLDIER,
+BARTENDER, KARGA, SKELDEN, NPC_ ... are NPCs, everything else is an enemy.
+The prefix list is in the Reference chapter.
+
+The "Category" dropdown
+
+Shows one group in the tree. "All" shows everything again.
+
+The filter box
+
+While you type, only matching entries remain - by name, by sheet name or by
+a text field such as the mesh path. Several words must all match:
+
+- wolf - every wolf: units, their voices, their meshes
+- units wolf - only the units
+- roadsign - finds every road sign through its mesh path
+- traps - the whole Traps sheet
+
+Enter or F3 jumps to the next match, Esc clears the box, Ctrl+F puts the
+cursor into it.
+
+======================================================================
+EDITING FIELDS
+======================================================================
+
+Editing fields
+
+Names and descriptions
+
+Every field shows [index], the SDK name, the type and the value. Names
+come from the sheet of the list; hover a name to read its description.
+Right-click a name to set your own label or restore the SDK name. Your
+labels live per sheet in ~\tw1_par_labels_v2.json.
+
+Values
+
+- Integers (int32, uint32): 0x10 for 16 works too.
+- Floating point (float32): dot or comma.
+- Text (string): free.
+- Fields ending in [] are lists; one value per line.
+
+A red border means the text is not a valid value. The old value is kept,
+the status bar names the field, and Save refuses until it is fixed.
+
+Undo
+
+Ctrl+Z takes back the last change - a field edit, a duplicate, rename,
+delete or merge. Ctrl+Y redoes it.
+
+Entries
+
+Right-click an entry in the tree: Duplicate (suggests the next name and
+adjusts mesh paths), Rename, Delete. Right-click a list: add a new
+empty entry.
+
+Save and backup
+
+Ctrl+S writes the file in place. Before that, the version on disk goes to
+_backup\<name>.<time>.par next to it - once per file and session. File >
+Restore backup brings one of them back.
+
+======================================================================
+COMPARE & MERGE
+======================================================================
+
+Compare & Merge
+
+The second tab compares two par files field by field.
+
+1. Load Source: your file, the one that should receive changes.
+2. Load Input: the file with the changes, for example another mod's par.
+3. Optionally Original: the unmodified retail par as reference; the path
+   is remembered.
+4. Press Compare. Every difference is one row: list, entry, field, the
+   three values.
+5. Tick rows (click the last column), Merge Selected into Source, then
+   Save Merged PAR.
+
+The filter buttons show only changed rows, only rows new in Input, or only
+rows missing from Input. Merge can be undone (Ctrl+Z in the Editor tab).
+
+======================================================================
+PACKING INTO A MOD
+======================================================================
+
+Packing into a mod
+
+The game reads a changed par only from a WD archive in the Mods\ folder.
+The editor writes that archive itself.
+
+  Opened   Save (Ctrl+S)
+  WDFiles\Update16.wd (game archive)   asks for a new .wd in Mods\; the game archive is never written
+  a mod .wd   swaps the par inside that archive, every other file stays; the old version goes to the tool's backup folder (not into Mods\, where the game might load it as a mod)
+  a loose .par   writes the .par; Save As with type .wd makes a mod
+
+Source: tw1_par_editor.py, _save / _save_as / write_par_target
+
+The directory entry of the par gets the values of the original: path
+Parameters\TwoWorlds.par, flags 0x39, resource translateGameParams,
+id 1536 and the same GUID. The Kira mod ships its par the same way, and
+savegames keep their par fingerprint.
+
+The mod loads at the next start. A registry value under
+HKCU\SOFTWARE\Reality Pump\TwoWorlds\Mods = 0 switches it off; the Mod
+Manager shows and toggles that.
+
+Switch on only one mod with its own par at a time: which one wins depends on
+the load order, which is not measured.
+
+Source: tw1_par_editor.py, write_par_target / wd_new_with_par / wd_replace_par; metadata measured on Update16.wd, Yamalin.wd, Elite.wd, revamp.wd
+
+======================================================================
+REFERENCE TABLES
+======================================================================
+
+Reference tables
+
+Groups and their sheets
+
+  Group   SDK sheets
+  Player   Heroes, HeroTalks
+  NPCs   Units, ShopUnits, UnitTalks
+  Enemies   Units
+  Animals & Mounts   BasicUnits
+  Weapons & Missiles   Weapon, MagicClub, Missiles, PierceMissileSlots
+  Armour & Equipment   Equipment, EquipmentArtefacts
+  Magic & Effects   MagicCard, Dynamics
+  Potions & Items   PotionArtefacts, AlchemyFormulaArtefacts, SpecialArtefacts, CustomArtefacts
+  Objects & Buildings   Passives, SimplePassives, Containers, Gates, Teleports, Markers
+  Traps   Traps
+  Sounds & Voices   SoundPack, SoundPacksSet
+  Meshes & Animations   UnitMeshes, BasicUnitsAnimations, UnitsAnimations, UnitsAnimationsFiles, CustomScalers, MeshButtonViewParams, CameraTracks
+  Game Parameters   CommonGameParams, ObjectParticles, InventoryDialogParams, SpecialUpdatesLinks
+  Other   -
+Source: categories.py; sheets from TwoWorlds.xls (SDK), counts measured on WDFiles\Update16.wd, 16.09.2026
+
+NPC prefixes in the Units sheet
+
+A Units list whose first entry starts like this counts as an NPC list: CITIZEN, BARTENDER, CHAR_, KARGA, GIRIZA, SKELDEN, SOLDIER, WARRIOR, MASTER_, SOUL_, SISTER, NPC_, THE_1_COACH, SHOP, TRADER, GUARD, PRIEST, MERCHANT
+
+Source: categories.py, NPC_PREFIXES; measured on the 95 Units lists of the Update16 par
+
+Sheets with field count
+
+  Sheet   Fields   Group
+  AlchemyFormulaArtefacts   49   Potions & Items
+  BasicUnits   26   Animals & Mounts
+  BasicUnitsAnimations   26   Meshes & Animations
+  CameraTracks   1   Meshes & Animations
+  CommonGameParams   79   Game Parameters
+  Containers   33   Objects & Buildings
+  CustomArtefacts   39   Potions & Items
+  CustomScalers   64   Meshes & Animations
+  Dynamics   17   Magic & Effects
+  Equipment   22   Armour & Equipment
+  EquipmentArtefacts   43   Armour & Equipment
+  Gates   36   Objects & Buildings
+  HeroTalks   158   Player
+  Heroes   130   Player
+  InventoryDialogParams   52   Game Parameters
+  MagicCard   53   Magic & Effects
+  MagicClub   77   Weapons & Missiles
+  Markers   30   Objects & Buildings
+  MeshButtonViewParams   9   Meshes & Animations
+  Missiles   49   Weapons & Missiles
+  ObjectParticles   47   Game Parameters
+  Passives   30   Objects & Buildings
+  PierceMissileSlots   3   Weapons & Missiles
+  PotionArtefacts   101   Potions & Items
+  RollingStones   30   Other
+  ShopUnits   65   NPCs
+  SimplePassives   16   Objects & Buildings
+  SoundPack   6   Sounds & Voices
+  SoundPacksSet   1   Sounds & Voices
+  SpecialArtefacts   47   Potions & Items
+  SpecialUpdatesLinks   1   Game Parameters
+  Teleports   42   Objects & Buildings
+  Traps   77   Traps
+  UnitMeshes   22   Meshes & Animations
+  UnitTalks   6   NPCs
+  Units   65   Units: NPCs / Enemies
+  UnitsAnimations   218   Meshes & Animations
+  UnitsAnimationsFiles   217   Meshes & Animations
+  Weapon   68   Weapons & Missiles
+Source: tw1_sdk_fields.json (TwoWorlds.xls, SDK); field count = sheet columns, exact for 608 of 609 lists of the Update16 par
+
+Field types
+
+  Id   Name   Encoding
+  0   int32   i32
+  1   float32   f32
+  2   uint32   u32
+  3   string   dstring
+  4   int32[]   u64 lead + u32 count + i32[]
+  5   float32[]   u64 lead + u32 count + f32[]
+  6   uint32[]   u64 lead + u32 count + u32[]
+  7   string[]   u64 lead + u32 count + dstring[]
+Source: tw1_par_editor.py TYPE_NAMES, PAR_FORMAT.md; array lead measured on all 5155 entries: u64 = 0 means empty, and then no count follows
+
+======================================================================
+TROUBLESHOOTING
+======================================================================
+
+Troubleshooting
+
+"No field names, only [0] [1] [2]"
+
+tw1_sdk_fields.json is missing next to the script. The exe carries it;
+with the script it must sit in the same folder.
+
+"WARNING: old 1.0 layout"
+
+You opened the par from Parameters.wd. It has 602 lists and the hero with
+121 fields; the SDK names do not fit 110 of its lists. Take the par from
+Update16.wd (609 lists, hero with 130 fields, 608 of 609 exact).
+
+"Saved, but nothing changes in the game"
+
+The par must sit inside a mod archive in Mods\ and be set to 1 in the
+registry. The game reads the list only at startup. With a second mod that
+carries its own par, the one loaded last wins.
+
+"The value is not taken over"
+
+Red border: not a valid value. The status bar names the field. Integers
+accept 0x10, floats accept a comma.
+
+"Save refuses"
+
+A field holds invalid text. Go back to the entry, find the red border,
+correct the value or press Ctrl+Z.
+
+"I want the old version back"
+
+File > Restore backup. The copies sit in _backup\ next to the file, one
+per file and session.
+
+"Every 77-field entry is named like a magic staff"
+
+That was the bug up to version 1.3: names by field count. Nine sheet pairs
+share a count. Since 1.4 the name comes from the sheet of the list.
+

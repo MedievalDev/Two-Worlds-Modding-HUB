@@ -1,0 +1,269 @@
+TW1 Mod Manager - the guide
+===========================
+
+The tool shows the same guide under Help > Guide (F1).
+
+======================================================================
+GETTING STARTED
+======================================================================
+
+Getting started
+
+Two Worlds (2007) loads mods from the Mods\ folder next to the game exe.
+Every mod is a .wd archive, and whether it loads at start is written in
+the Windows registry - exactly where the game's "TwoWorlds1 Mod Selector"
+puts its ticks. The Mod Manager shows both in one list, toggles them,
+installs new archives and downloads verified mods from the community
+server.
+
+The window
+
+- Installed mods tab: every archive in the Mods folder with its
+  switch, size and date. Double-click toggles.
+- My Mods (server) tab: the list from alchemy-fox.de with checksums;
+  Install downloads, verifies and enables.
+- Drag and drop: drag a .wd from Explorer onto the window - a dialog
+  asks whether to install the mod.
+- Status bar: what happened last.
+
+Nothing is deleted: disabling only sets the registry value to 0, removing
+moves the archive to Mods\_removed\.
+
+Keyboard shortcuts
+
+  Key   Action
+  Ctrl+O   Pick a mod file and install it
+  F5   Reload the list
+  Enter / double-click   Enable or disable the mod
+  Del   Remove the mod (a copy is kept)
+  F1   This guide
+Source: mod_manager.py, _bind_keys
+
+======================================================================
+INSTALLING A MOD
+======================================================================
+
+Installing a mod
+
+Drag and drop
+
+Drag a .wd from Explorer onto the window. A dialog opens with name, size,
+number of files in the archive and its top folders (Parameters,
+Levels, Scripts ...). If a file of the same name already sits in the
+Mods folder, the dialog says whether it is identical or would be replaced -
+the old one stays as .backup.
+
+- Install and enable: copy and set the registry switch to 1.
+- Install only: copy, switch stays off.
+- Cancel: nothing happens.
+
+Several files at once work too; each gets its own dialog.
+
+Through the button
+
+"Add external mod" (Ctrl+O) opens the file dialog and leads to the same
+window.
+
+What is checked
+
+The archive must be a WD archive of the game (header FF A1 D0 31 'WD' 00
+02 in the first zlib stream, measured on every shipped archive). Anything
+else is refused, so no zip file ends up in the Mods folder.
+
+While the game runs the manager refuses to install: Two Worlds reads the
+mod list only at start.
+
+======================================================================
+ENABLING AND DISABLING
+======================================================================
+
+Enabling and disabling
+
+Double-click a row, press Enter, or use the "Enable / disable" button.
+
+At start the game reads the registry key
+HKCU\SOFTWARE\Reality Pump\TwoWorlds\Mods. Every value in it is an
+archive name with DWORD 1 (load) or 0 (do not load). An archive in the
+Mods folder without a value is loaded - 0 is a deliberate off
+switch, not a default.
+
+Archives in the game folder
+
+A .wd right next to TwoWorlds.exe is always loaded, whatever the
+registry says. The manager shows such files in red with "ALWAYS loads".
+The only way to disable them is to move them out of the game folder.
+
+Order
+
+Later archives win. With two mods that carry the same file (say
+Parameters\TwoWorlds.par), the one the game loads last applies. Which
+one that is depends on the game's load order and is not measured here -
+when in doubt, enable only one of them.
+
+Removing
+
+"Remove (keeps a copy)" moves the archive to Mods\_removed\ and sets
+the value to 0. To bring it back, move the file into Mods\ again and
+enable it.
+
+======================================================================
+MODS FROM THE SERVER AND GITHUB
+======================================================================
+
+Mods from the server
+
+The "My Mods (server)" tab reads mods.json from alchemy-fox.de: name,
+version, size, SHA-256 and download address of every verified mod.
+
+- not installed: not on this PC yet.
+- update available: the file in the Mods folder has a different
+  checksum than the one on the server.
+- installed · enabled / disabled: present here, switch as shown.
+
+"Install / update" downloads to Mods\<file>.download, verifies the
+SHA-256, keeps a .backup when replacing and enables the mod. If the
+checksum does not match, the download is discarded and nothing changes.
+
+Without internet the tab stays empty; the status bar says why.
+
+Community (GitHub)
+
+The third tab shows the folder "Two Worlds" of the archive
+github.com/InsideTwoWorlds/MODs: every .wd with its size, and where a
+.wd.txt sits next to it, its description (shown when you click the
+row). Install downloads the file from GitHub and checks it against the
+hash GitHub keeps for the file (git blob SHA-1); "update available" means
+the file in the Mods folder has a different hash than the one on GitHub.
+Double-clicking a row installs as well.
+
+The mods there come from different authors; the description says what
+they do and whether they get along with others. Read, then install.
+
+======================================================================
+MERGING MODS
+======================================================================
+
+Merging mods (experimental)
+
+Two mods that ship the same file shut each other out in the game: one wins,
+the other file never loads. The Merge mods tab builds one new mod out of
+several. The source mods are only read, nothing is overwritten.
+
+What a mod changes
+
+Rest the mouse on a row: which kinds of files the mod ships, how many par
+fields, quest blocks, texts and which maps it changes against the game. In
+the Installed mods tab a click on a mod colours the other rows by how they
+fit it.
+
+Colours
+
+  Colour   Meaning   When merging
+  green   no overlap inside files   merges without a question
+  yellow   up to 40 overlaps inside files, shared maps or whole files   each one is asked
+  red   more than 40 overlaps, or compiled scripts (.eco) in both   choose a main mod, it wins every clash
+
+Source: modscan.py, compare / SOFT_LIMIT
+
+How fine the merge goes
+
+  File   Unit
+  Parameters\TwoWorlds.par   per field of an entry; new entries as a whole
+  Scripts\Quests\TwoWorldsQuests.qtx   per block (QUEST, NPC, CONTAINER up to END) and per LOCATION line
+  Language\*.lan   per text key and per dialog tree
+  Levels\Map_X.lnd + physic\Map_X.phx   per tile, map and physics always from the same mod
+  Levels\Map_LevelHeaders.lhc   never taken over, built new
+  everything else   whole file
+
+Source: modscan.py, merger.py
+
+"Changed" means: different from the game's own file. Two mods that set the
+same field to the same value do not overlap.
+
+Steps
+
+1. Tick the mods. The order of the ticks is the order of the mods.
+2. Type the name of the new mod. An existing name is refused.
+3. Main mod (required for red): its files stay byte for byte where no
+   other mod changes anything, and it wins every clash you do not decide
+   yourself.
+4. For yellow the list of overlaps opens: the place on the left, the values
+   of both mods on the right. "Give all to" hands the rest to one mod.
+5. The new mod lands in the Mods folder, switched off. The manager offers to
+   enable it and switch the source mods off - both at once would load
+   everything twice.
+
+Maps
+
+When two mods bring the same tile you choose the mod per tile. Markers only
+the other mod has on its version (quest markers!) are carried over onto the
+chosen map and set onto its ground; game markers the chosen map lacks come
+back. For interiors without a readable heightmap the height stays as it
+was. The report names every marker carried over.
+
+Limits
+
+The tool cannot test whether the game starts with the result. Two balance
+mods merge cleanly and can still be nonsense in play. Compiled scripts
+(.eco) cannot be split. The report of every merge is kept in the tool's
+data folder under merges.
+
+======================================================================
+REFERENCE TABLES
+======================================================================
+
+Reference tables
+
+Registry
+
+  Entry   Meaning
+  SOFTWARE\Reality Pump\TwoWorlds\Mods   key; one DWORD per archive name
+  <Name>.wd = 1   load
+  <Name>.wd = 0   do not load (deliberate off switch)
+  no value   archive in the Mods folder is loaded
+Source: mod_manager.py REG_MODS; behaviour measured against the game's Mod Selector and archives without a value (QuestForge, 2026)
+
+Folders and files
+
+  Place   Meaning
+  Mods\   the archives the manager handles
+  Mods\_removed\   "Remove" moves here, nothing is deleted
+  Mods\<Name>.wd.backup   previous version before a replacement
+  <Spiel>\*.wd   always loads, registry has no effect
+Source: mod_manager.py (install, remove, root archives)
+
+======================================================================
+TROUBLESHOOTING
+======================================================================
+
+Troubleshooting
+
+"Two Worlds install not found"
+
+The manager tries the saved choice, then DataDir in the registry, then
+the Steam libraries. File > Change game path points to the folder with
+WDFiles\.
+
+"Close Two Worlds first"
+
+The game is running. It reads the mod list only at start; installing and
+toggling wait until it is closed.
+
+Mod is enabled, nothing happens in the game
+
+- Started a new game? Maps and scripts are frozen inside old saves - that
+  is what the TW1 Savegame Patcher is for.
+- Two mods with the same file? The one loaded later wins.
+- Is the file really in Mods\ and not in a subfolder?
+
+"file missing"
+
+The registry names a file that is not in the Mods folder. Either put the
+file back (also from _removed), or drop the entry with "Remove".
+
+Dropping does nothing
+
+Drag and drop needs Windows and a program that is not running as
+administrator (Windows blocks drops from normal programs onto elevated
+ones). The "Add external mod" button does the same thing.
+

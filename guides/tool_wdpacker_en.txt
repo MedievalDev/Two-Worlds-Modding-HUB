@@ -1,0 +1,135 @@
+TW1 WD Packer - the guide
+=========================
+
+The tool shows the same guide under Help > Guide (F1).
+
+======================================================================
+GETTING STARTED
+======================================================================
+
+Getting started
+
+Two Worlds keeps almost everything in .wd archives: the game in
+WDFiles\, mods in Mods\. The WD Packer does two things:
+
+- Unpack: drag a .wd onto the window. A folder with the same name and
+  all files inside appears next to it.
+- Pack: drag a folder onto the window. A .wd with the same name
+  appears next to it.
+
+That is all there is to do. Everything a clean repack needs is written down
+by the tool while unpacking (chapter "What unpacking keeps"). The core is
+buglord's WD Repacker (Python).
+
+  Key   Action
+  Ctrl+O   Unpack a WD archive
+  Ctrl+P   Pack a folder into a WD archive
+  F1   This guide
+Source: wd_packer.py, _bind_keys
+
+======================================================================
+UNPACKING
+======================================================================
+
+Unpacking
+
+1. Drag a .wd from Explorer onto the window, or click Unpack WD... and
+   pick one.
+2. The tool unpacks into a folder next to the file, named like the archive
+   (Yamalin.wd becomes Yamalin). If that folder exists and is not empty,
+   it takes Yamalin (2) - nothing is overwritten.
+3. The bar shows the progress, Cancel stops.
+4. At the end the window says how many files it were, with Open folder.
+
+Archives of the game can be unpacked too, they are only read. The core
+unpacks Two Worlds 2 archives as well.
+
+======================================================================
+PACKING
+======================================================================
+
+Packing
+
+1. Drag the folder onto the window, or click Pack folder....
+2. The tool packs into a .wd next to the folder, named like the folder. If
+   that exists it asks once; the old version goes to the tool's backup
+   folder first.
+3. Then it reads the new archive back and compares every file with the one
+   in the folder. Only when everything matches does it replace the old .wd.
+4. A mod reaches the game through the Mods\ folder and the Mod Manager.
+
+The tool does not write into the game's WDFiles folder, and not while Two
+Worlds is running.
+
+======================================================================
+WHAT UNPACKING KEEPS
+======================================================================
+
+What unpacking keeps
+
+Next to the files of the game an unpacked folder holds up to three small
+files. They are not game files; packing reads them and leaves them out:
+
+  File   Content
+  GUID   id of the archive (16 bytes)
+  FILETIME   time stamp of the archive
+  WDFLAGS   flags of files the core would guess wrong when packing
+
+Source: wdcore.py, KEEP
+
+Some files (maps .lnd, scripts .eco, the parameters .par) carry
+metadata in the archive: a name, a class id, a GUID. After unpacking such
+files start with a small packed header that holds it - that is how
+buglord's repacker does it. The Alchemy Fox tools (PAR Editor, Quest
+Creator) read them directly. Whoever edits such a file by hand leaves the
+header in place.
+
+Measured on the game and on seven community mods: after unpacking and
+packing every file has the same content and the same metadata as before.
+
+======================================================================
+REFERENCE
+======================================================================
+
+Reference
+
+Which flags a file gets when packing, unless the folder says otherwise:
+
+  Extension   Flags   Meaning
+  .txt, .con, .tga, .cfg, .def, .qtx   0x05   compressed, text
+  .phx   0x00   uncompressed (physics)
+  all others   0x01   compressed
+  file with header   from the header   metadata as in the original
+
+Source: wdio.py (buglord), v1_chk_file / _TEXT_FILES_
+
+If the original differs, the file is listed in WDFLAGS and keeps its
+flags. The archive itself: packed head FF A1 D0 31 'WD' 00 02 with GUID,
+then the data, at the end the packed directory and its length.
+
+======================================================================
+TROUBLESHOOTING
+======================================================================
+
+Troubleshooting
+
+"These names cannot go into a .wd"
+
+The archive stores file names only in ASCII and up to 255 characters.
+Rename umlauts or long paths in the folder, then pack again.
+
+"Two Worlds is running"
+
+The game keeps its archives open. Quit it first, then pack.
+
+"Check failed"
+
+A file in the folder changed while packing, or the drive had an error. The
+old .wd is unchanged; just pack again.
+
+Packing takes long the first time
+
+The virus scanner checks freshly unpacked folders with thousands of files
+on the first open of each file. Measured on Shaders.wd (4784 files): 36 s
+on the first pack, 9 s on the second.
+

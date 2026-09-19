@@ -1,0 +1,273 @@
+TW1 Mod Manager - die Anleitung
+===============================
+
+Dieselbe Anleitung zeigt das Programm unter Hilfe > Guide (F1).
+
+======================================================================
+EINSTIEG
+======================================================================
+
+Einstieg
+
+Two Worlds (2007) laedt Mods aus dem Ordner Mods\ neben der Spiel-Exe.
+Jede Mod ist ein .wd-Archiv, und ob es beim Start geladen wird, steht in
+der Windows-Registry - genau da, wo der "TwoWorlds1 Mod Selector" des
+Spiels seine Haken setzt. Der Mod Manager zeigt beides in einer Liste,
+schaltet um, legt neue Archive ein und laedt gepruefte Mods vom
+Community-Server.
+
+Das Fenster
+
+- Reiter Installed mods: alle Archive im Mods-Ordner mit Schalter,
+  Groesse und Datum. Doppelklick schaltet um.
+- Reiter My Mods (server): die Liste von alchemy-fox.de mit
+  Pruefsumme; Install laedt, prueft und schaltet ein.
+- Ziehen und Ablegen: eine .wd aus dem Explorer aufs Fenster ziehen -
+  ein Fenster fragt, ob die Mod eingelegt werden soll.
+- Statusleiste: was zuletzt passiert ist.
+
+Nichts wird geloescht: Ausschalten setzt nur den Registry-Wert auf 0,
+Entfernen verschiebt das Archiv nach Mods\_removed\.
+
+Tastenkuerzel
+
+  Taste   Wirkung
+  Strg+O   Mod-Datei waehlen und einlegen
+  F5   Liste neu lesen
+  Enter / Doppelklick   Mod ein- oder ausschalten
+  Entf   Mod entfernen (Kopie bleibt)
+  F1   Dieser Guide
+Quelle: mod_manager.py, _bind_keys
+
+======================================================================
+MOD EINLEGEN
+======================================================================
+
+Mod einlegen
+
+Ziehen und Ablegen
+
+Eine .wd aus dem Explorer auf das Fenster ziehen. Es oeffnet sich ein
+Fenster mit Name, Groesse, Anzahl der Dateien im Archiv und den obersten
+Ordnern (Parameters, Levels, Scripts ...). Liegt schon eine Datei
+gleichen Namens im Mods-Ordner, sagt das Fenster, ob sie identisch ist
+oder ersetzt wuerde - die alte bleibt als .backup.
+
+- Install and enable: kopieren und in der Registry auf 1 setzen.
+- Install only: kopieren, Schalter bleibt aus.
+- Cancel: nichts passiert.
+
+Mehrere Dateien auf einmal gehen auch; jede bekommt ihr Fenster.
+
+Ueber den Knopf
+
+"Add external mod" (Strg+O) oeffnet den Dateidialog und fuehrt zum selben
+Fenster.
+
+Was geprueft wird
+
+Das Archiv muss ein WD-Archiv des Spiels sein (Kopf FF A1 D0 31 'WD' 00 02
+im ersten zlib-Strom, gemessen an allen ausgelieferten Archiven). Alles
+andere lehnt das Fenster ab, damit keine Zip-Datei im Mods-Ordner landet.
+
+Laeuft das Spiel, verweigert der Manager das Einlegen: Two Worlds liest die
+Mod-Liste nur beim Start.
+
+======================================================================
+EIN- UND AUSSCHALTEN
+======================================================================
+
+Ein- und ausschalten
+
+Doppelklick auf eine Zeile, Enter, oder der Knopf "Enable / disable".
+
+Das Spiel liest beim Start den Registry-Schluessel
+HKCU\SOFTWARE\Reality Pump\TwoWorlds\Mods. Jeder Wert darin ist ein
+Archivname mit DWORD 1 (laden) oder 0 (nicht laden). Ein Archiv im
+Mods-Ordner ohne Wert wird geladen - 0 ist ein bewusster
+Ausschalter, kein Standard.
+
+Archive im Spielordner
+
+Liegt eine .wd direkt neben TwoWorlds.exe, laedt das Spiel sie immer,
+egal was in der Registry steht. Der Manager zeigt solche Dateien rot mit
+"ALWAYS loads". Ausschalten geht nur, indem man sie aus dem Spielordner
+bewegt.
+
+Reihenfolge
+
+Spaeter geladene Archive gewinnen. Liegen zwei Mods mit derselben Datei
+(etwa Parameters\TwoWorlds.par) nebeneinander, gilt die, die das Spiel
+zuletzt laedt. Welche das ist, haengt an der Ladereihenfolge des Spiels
+und ist hier nicht gemessen - im Zweifel nur eine davon einschalten.
+
+Entfernen
+
+"Remove (keeps a copy)" verschiebt das Archiv nach Mods\_removed\ und
+setzt den Wert auf 0. Zurueckholen: die Datei zurueck in Mods\ legen und
+einschalten.
+
+======================================================================
+MODS VOM SERVER UND VON GITHUB
+======================================================================
+
+Mods vom Server
+
+Der Reiter "My Mods (server)" liest mods.json von alchemy-fox.de: Name,
+Version, Groesse, SHA-256 und Download-Adresse jeder gepruefen Mod.
+
+- not installed: noch nicht auf diesem PC.
+- update available: die Datei im Mods-Ordner hat eine andere
+  Pruefsumme als die auf dem Server.
+- installed · enabled / disabled: liegt hier, Schalter wie gezeigt.
+
+"Install / update" laedt nach Mods\<Datei>.download, prueft die
+SHA-256, legt bei Ersatz ein .backup an und schaltet ein. Stimmt die
+Pruefsumme nicht, wird der Download verworfen und nichts geaendert.
+
+Ohne Internet bleibt der Reiter leer; die Statusleiste sagt warum.
+
+Community (GitHub)
+
+Der dritte Reiter zeigt den Ordner "Two Worlds" des Archivs
+github.com/InsideTwoWorlds/MODs: jede .wd mit Groesse, und wo eine
+.wd.txt daneben liegt, ihre Beschreibung (erscheint beim Anklicken).
+Install laedt die Datei von GitHub und prueft sie gegen den Hash, den
+GitHub fuer die Datei fuehrt (git-Blob-SHA1); "update available" heisst,
+die Datei im Mods-Ordner hat einen anderen Hash als die auf GitHub.
+Doppelklick auf eine Zeile installiert ebenfalls.
+
+Die Mods dort stammen von verschiedenen Autoren; die Beschreibung sagt,
+was sie tun und ob sie sich mit anderen vertragen. Lesen, dann einlegen.
+
+======================================================================
+MODS ZUSAMMENFUEHREN
+======================================================================
+
+Mods zusammenfuehren (experimentell)
+
+Zwei Mods, die dieselbe Datei mitbringen, schliessen sich im Spiel aus: eine
+gewinnt, die andere Datei laedt nie. Der Reiter Merge mods baut aus
+mehreren Mods eine neue. Die Quell-Mods werden nur gelesen, nichts wird
+ueberschrieben.
+
+Was eine Mod aendert
+
+Mit der Maus ueber einer Zeile stehen bleiben: welche Dateiarten die Mod
+mitbringt, wie viele Par-Felder, Quest-Bloecke, Texte und welche Karten sie
+gegenueber dem Spiel aendert. Im Reiter Installed mods faerbt ein Klick auf
+eine Mod die anderen Zeilen danach, wie sie zu ihr passen.
+
+Farben
+
+  Farbe   Bedeutung   Beim Zusammenfuehren
+  Gruen   keine Ueberschneidung innerhalb von Dateien   laeuft ohne Rueckfrage
+  Gelb   bis 40 Ueberschneidungen in Dateien, gemeinsame Karten oder ganze Dateien   jede wird gefragt
+  Rot   mehr als 40 Ueberschneidungen, oder kompilierte Skripte (.eco) in beiden   Haupt-Mod waehlen, sie gewinnt jede Kollision
+
+Quelle: modscan.py, compare / SOFT_LIMIT
+
+Wie fein zusammengefuehrt wird
+
+  Datei   Einheit
+  Parameters\TwoWorlds.par   je Feld eines Eintrags; neue Eintraege als Ganzes
+  Scripts\Quests\TwoWorldsQuests.qtx   je Block (QUEST, NPC, CONTAINER bis END) und je LOCATION-Zeile
+  Language\*.lan   je Textschluessel und je Dialogbaum
+  Levels\Map_X.lnd + physic\Map_X.phx   je Kachel, Karte und Physik immer aus derselben Mod
+  Levels\Map_LevelHeaders.lhc   wird nie uebernommen, sondern neu gebaut
+  alles andere   ganze Datei
+
+Quelle: modscan.py, merger.py
+
+"Geaendert" heisst: anders als die Datei des Spiels. Aendern zwei Mods
+dasselbe Feld auf denselben Wert, ist das keine Ueberschneidung.
+
+Ablauf
+
+1. Mods anhaken. Die Reihenfolge der Haken ist die Reihenfolge der Mods.
+2. Namen der neuen Mod eintragen. Ein vorhandener Name wird abgelehnt.
+3. Haupt-Mod (bei Rot Pflicht): ihre Dateien bleiben Byte fuer Byte, wo
+   keine andere Mod etwas aendert, und sie gewinnt jede Kollision, die du
+   nicht selbst entscheidest.
+4. Bei Gelb oeffnet sich die Liste der Ueberschneidungen: links die Stelle,
+   rechts die Werte beider Mods. "Give all to" gibt den Rest einer Mod.
+5. Die neue Mod landet ausgeschaltet im Mods-Ordner. Der Manager bietet an,
+   sie einzuschalten und die Quell-Mods auszuschalten - beides zugleich
+   wuerde alles doppelt laden.
+
+Karten
+
+Bringen zwei Mods dieselbe Kachel, waehlst du je Kachel die Mod. Marker, die
+nur die andere Mod auf ihrer Fassung hat (Questmarker!), werden auf die
+gewaehlte Karte uebertragen und auf deren Boden gesetzt; Marker des Spiels,
+die der gewaehlten Karte fehlen, kommen zurueck. Bei Innenraeumen ohne
+lesbare Hoehenkarte bleibt die Hoehe, wie sie war. Der Bericht nennt jeden
+uebertragenen Marker.
+
+Grenzen
+
+Das Tool kann nicht pruefen, ob das Spiel mit dem Ergebnis startet. Zwei
+Balance-Mods lassen sich sauber zusammenfuehren und ergeben trotzdem Unsinn.
+Kompilierte Skripte (.eco) sind nicht teilbar. Der Bericht jeder
+Zusammenfuehrung liegt im Datenordner des Tools unter merges.
+
+======================================================================
+REFERENZTABELLEN
+======================================================================
+
+Referenztabellen
+
+Registry
+
+  Eintrag   Bedeutung
+  SOFTWARE\Reality Pump\TwoWorlds\Mods   Schluessel; ein DWORD je Archivname
+  <Name>.wd = 1   laden
+  <Name>.wd = 0   nicht laden (bewusster Ausschalter)
+  kein Wert   Archiv im Mods-Ordner wird geladen
+Quelle: mod_manager.py REG_MODS; Verhalten gemessen am Mod Selector des Spiels und an Archiven ohne Wert (QuestForge, 2026)
+
+Ordner und Dateien
+
+  Ort   Bedeutung
+  Mods\   die Archive, die der Manager verwaltet
+  Mods\_removed\   "Remove" verschiebt hierher, nichts wird geloescht
+  Mods\<Name>.wd.backup   alte Fassung vor einem Ersatz
+  <Spiel>\*.wd   laedt immer, Registry wirkungslos
+Quelle: mod_manager.py (install, remove, root archives)
+
+======================================================================
+FEHLERSUCHE
+======================================================================
+
+Fehlersuche
+
+"Two Worlds install not found"
+
+Der Manager sucht die gespeicherte Wahl, dann DataDir in der Registry,
+dann die Steam-Bibliotheken. Datei > Change game path zeigt auf den Ordner
+mit WDFiles\.
+
+"Close Two Worlds first"
+
+Das Spiel laeuft. Es liest die Mod-Liste nur beim Start; einlegen und
+umschalten wartet, bis es zu ist.
+
+Mod ist eingeschaltet, im Spiel passiert nichts
+
+- Neues Spiel gestartet? Karten und Skripte stecken in alten Spielstaenden
+  fest - dafuer gibt es den TW1 Savegame Patcher.
+- Zwei Mods mit derselben Datei? Die spaeter geladene gewinnt.
+- Liegt die Datei wirklich in Mods\ und nicht in einem Unterordner?
+
+"file missing"
+
+In der Registry steht ein Name, die Datei fehlt im Mods-Ordner. Entweder
+die Datei zurueck (auch aus _removed), oder den Eintrag mit "Remove"
+loeschen.
+
+Ablegen tut nichts
+
+Ziehen und Ablegen braucht Windows und ein nicht als Administrator
+gestartetes Programm (Windows blockt Drops von normalen Programmen auf
+erhoehte). Der Knopf "Add external mod" tut dasselbe.
+

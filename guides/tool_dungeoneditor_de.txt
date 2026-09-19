@@ -1,0 +1,259 @@
+TW1 Dungeon Editor - die Anleitung
+==================================
+
+Dieselbe Anleitung zeigt das Programm unter Hilfe > Guide (F1).
+
+======================================================================
+EINSTIEG
+======================================================================
+
+Einstieg
+
+Der TW1 Dungeon Editor ist ein Rahmen um Dungeons.exe aus dem Two Worlds
+SDK. Mit diesem Editor wurden laut SDK-Notizen die Dungeons des Spiels gebaut.
+Du malst den Grundriss von oben auf ein Raster, der Editor wählt die passenden
+Wand- und Gangbausteine und schreibt am Ende ein Konsolenskript für den Two
+Worlds Editor.
+
+Das Fenster hat vier Bereiche:
+
+- Menüleiste und Werkzeugleiste oben: Datei, Modi, Zoom. Alle Knöpfe
+  schicken nur die Original-Tasten an den Editor.
+- Zeichenfläche links: das eingebettete Fenster von Dungeons.exe, fest
+  1024 x 768 Pixel.
+- Hinweis-Panel rechts: Maus und Tasten des aktuellen Modus, Warnfarben,
+  Checkliste für den Weg ins Spiel.
+- Statusleiste unten: Modus, Datei, ungespeichert, Checkliste.
+
+Das ? neben Titeln erklärt beim Überfahren und springt beim Klick in das
+passende Kapitel. Den kurzen Rundgang startest du unter Hilfe > Rundgang
+starten.
+
+Tasten
+  Taste   Wirkung
+  F1   Guide
+  Tab   nächster Modus
+  F2   Speichern
+  F3   Öffnen
+  F4   Karten-Offset setzen
+  F5   Konsolenskript exportieren
+  F6   altes Dungeon laden
+  F8   alles zurücksetzen
+  Bild auf/ab   Zoom
+  Pfeile   Ansicht verschieben
+
+Quelle: SDK Documentation\Dungeons readme.txt, Abschnitt 1. Zoom-Richtung gemessen am 14.09.2026: Bild ab zoomt hinein, Bild auf heraus.
+
+======================================================================
+ERSTES DUNGEON IN 10 MINUTEN
+======================================================================
+
+Erstes Dungeon in 10 Minuten
+
+1. Original ansehen: Datei > Öffnen, Dungeons\Dungeons\7.txt aus dem
+   SDK wählen. Das ist das kleinste Beispiel. Mit den Modus-Knöpfen durch
+   Höhe, Typ und Lichter schalten.
+2. Neu: Werkzeugleiste > Neu leert das Raster.
+3. Zwei Räume und ein Gang: im Modus Grundriss mit der linken Maustaste
+   einen Raum von 4 x 4 Kacheln malen, einen Gang von 7 Kacheln nach rechts und
+   einen zweiten Raum von 3 x 3. Solange nichts rot, grün oder violett ist,
+   passt jede Kachel.
+4. Speichern: Werkzeugleiste > Speichern (F2), Name zum Beispiel
+   meindungeon.txt. Das ist das Raster zum Weiterbearbeiten.
+5. Exportieren: Werkzeugleiste > Export (F5), Name zum Beispiel
+   meindungeon_src.txt. Das ist das Skript für den Two Worlds Editor.
+6. Ins Spiel: weiter im Kapitel "Export und Weg ins Spiel". Die Schritte
+   stehen auch als Checkliste im Hinweis-Panel.
+
+Gemessen am 14.09.2026: Der Grundriss aus Schritt 3 ergibt 31 Kacheln und 19
+Skriptzeilen. Große Wandstücke belegen mehrere Kacheln.
+
+======================================================================
+GRUNDRISS
+======================================================================
+
+Grundriss
+
+Hier entsteht die Form des Dungeons. Du malst nur, wo Raum sein soll. Welche
+Wand, Ecke oder welcher Gang daraus wird, entscheidet der Editor. Die
+Buchstaben A bis M zeigen den gewählten Baustein, etwa DUN_WALL_B oder
+DUN_CORR_K.
+
+  Eingabe   Wirkung
+  Linke Maustaste   Kachel zeichnen
+  Rechte Maustaste   Kachel entfernen
+  Klick auf Block   nächste Blockvariante
+
+Quelle: SDK Dungeons readme.txt, Abschnitt 2.
+
+Farben im Editor
+
+  Farbe   Bedeutung
+  Rot   Ungültiger Block, kein passender Bausteinsatz
+  Grün   Loch, hier fehlen Blöcke
+  Violett   Block liegt auf einem anderen, einen verschieben
+
+Quelle: SDK Dungeons readme.txt, Abschnitt 2.
+
+Fallen
+
+- Rot heißt nicht falsch gemalt, sondern: Für diese Form gibt es keinen
+  Baustein. Oft hilft eine Kachel mehr oder weniger an der Ecke.
+- Kein Rückgängig. Der alte Editor kennt keins. Oft mit F2 speichern.
+
+======================================================================
+HÖHE
+======================================================================
+
+Höhe
+
+Gänge dürfen steigen und fallen. Jeder Block hat eine Höhe, die Zahl auf dem
+Block. Ein Klick wechselt zur nächsten Variante des Bausteins, und manche
+Varianten ändern die Höhe.
+
+  Eingabe   Wirkung
+  Klick auf Block   Blockvariante / Höhe wechseln
+  Weiße Zahl   Block ändert die Höhe nicht
+  Gelbe Zahl   Block ändert die Höhe
+
+Quelle: SDK Dungeons readme.txt, Abschnitt 3.
+
+Farben im Editor
+
+  Farbe   Bedeutung
+  Violett   Höhensprung an einer Blockkante oder Dungeon zu hoch
+
+Quelle: SDK Dungeons readme.txt, Abschnitt 3.
+
+======================================================================
+TYP
+======================================================================
+
+Typ
+
+Jeder Bereich des Dungeons bekommt einen Stil. Der Typ bestimmt, welche
+Bausteinfamilie im Skript steht, etwa DUN_WALL_E_01 oder Cave_WALL_E_01.
+
+  Eingabe   Wirkung
+  Linke Maustaste   einzelnen Block wählen
+  Rechte Maustaste   Blockgruppe wählen
+  Mausrad   Dungeon-Typ setzen (DUN 01..07b, Cave, Mine)
+
+Quelle: SDK Dungeons readme.txt, Abschnitt 4.
+
+Farben im Editor
+
+  Farbe   Bedeutung
+  Auswahlfarbe   Farbe der Auswahl = Typ laut dungeon.txt
+
+Quelle: SDK Dungeons readme.txt, Abschnitt 4.
+
+Dungeon-Typen
+
+dungeon.txt wurde nicht gefunden. Datei > Editor-Exe wählen.
+
+======================================================================
+OBJEKTE UND LICHTER
+======================================================================
+
+Objekte und Lichter
+
+In diesen beiden Modi setzt du Fackeln, Lichter und andere Objekte aus den
+Gruppen in dungeon.txt. Der Modus Lichter zeigt links oben die Liste der
+Lichtquellen.
+
+  Eingabe   Wirkung
+  Linke Maustaste   Objekt setzen
+  Strg + Klick   Objekttyp aufnehmen
+  Umschalt + Klick   zuletzt gesetztes Objekt entfernen
+  Umschalt + Strg + Klick   alle Objekte dieses Typs entfernen
+  Mausrad   Objekttyp wechseln
+
+Quelle: SDK Dungeons readme.txt, Abschnitt 5.
+
+Objekte und Lichter aus dungeon.txt
+
+dungeon.txt wurde nicht gefunden.
+
+Eigene Objekte und Lichter trägst du in dungeon.txt ein. Vorher eine
+Sicherung der Datei anlegen. Ob selbst eingetragene Objekte im Spiel
+funktionieren, ist ungeprüft.
+
+======================================================================
+EXPORT UND WEG INS SPIEL
+======================================================================
+
+Export und Weg ins Spiel
+
+Export (F5) schreibt eine Textdatei mit einer createEd-Zeile je Baustein:
+
+createEd 18815 25727 4096 64 Cave_WALL_E_01 1
+
+Felder einer Zeile
+  Feld   Inhalt   Status
+  x, y   Position in Welteinheiten, 256 je Kachel   gemessen
+  z   Höhe, Beispiele 4096 bis 4480   gemessen
+  alpha   Drehung, in den Beispielen nur 0, 64, 128, 192   Werte gemessen, Bedeutung ungeprüft
+  objectID   Baustein, etwa DUN_WALL_D_03   belegt
+  meshVariant   Variante, in den Beispielen 1 bis 3   gemessen
+
+Quelle: SDK Documentation\Editor console.txt (Syntax createEd x y z alpha [beta phi] objectID [meshVariant] [meshScale]), Werte aus den SDK-Skripten *src.txt und einem Export vom 14.09.2026.
+
+Ins Spiel
+
+Diese Schritte stehen auch als Checkliste im Hinweis-Panel. Das Tool erledigt
+sie nicht selbst, weil sie im Two Worlds Editor passieren.
+
+1. Offset setzen: vor dem Export mit Offset (F4) festlegen, wohin das
+   Dungeon in der Welt fällt. Die Koordinaten im Skript sind absolut.
+2. Skript in den Spielordner kopieren. Laut _info_.txt im SDK müssen
+   Konsolenskripte für den Editor im Spielverzeichnis liegen.
+3. Leeres Untergrund-Level im Two Worlds Editor öffnen.
+4. Skript ausführen: in der Editor-Konsole @meindungeon_src.txt.
+5. @edundgr.txt ausführen (SDK-Ordner Game): färbt das Gelände und
+   sperrt unpassierbare Stellen.
+6. Gegner, Truhen, Marker wie gewohnt setzen.
+
+Ungeprüft: Die Schritte 2 bis 5 folgen den SDK-Notizen. Mit diesem Tool
+sind sie noch nicht vollständig im Spiel nachgespielt.
+
+======================================================================
+REFERENZ
+======================================================================
+
+Referenz
+
+Original-Raster im SDK
+
+Jedes Raster lässt sich mit Öffnen laden. Das Skript daneben zeigt, was der
+Editor daraus erzeugt hat.
+
+Ordner Dungeons\Dungeons nicht gefunden.
+
+Modi in der Tab-Reihenfolge
+
+  Modus   Fenstertitel der Exe
+  Grundriss   Dungeons - editing dungeon
+  Höhe   Dungeons - editing dungeon height
+  Typ   Dungeons - editing dungeon type
+  Objekte   Dungeons - editing objects
+  Lichter   Dungeons - editing lights
+
+Quelle: gemessen am 14.09.2026 durch fünfmal Tab.
+
+======================================================================
+FEHLERSUCHE
+======================================================================
+
+Fehlersuche
+
+  Was passiert   Ursache   Was hilft
+  Editor startet nicht   Exe ohne dungeon.txt oder Data daneben   Datei > Editor-Exe wählen, Dungeons.exe aus TwoWorldsSDK\Dungeons nehmen
+  Zuletzt geöffnet lädt nichts   Tool vor 0.1.1   auf 0.1.1 oder neuer aktualisieren
+  Zoom + tut nichts   Startansicht ist schon die nächste Stufe   erst Zoom - benutzen
+  Klick ins Raster wirkt nicht   Dateidialog der Exe ist noch offen, oft hinter dem Fenster   Dialog in der Taskleiste suchen und schließen
+  Windows warnt beim Start   Exe ist nicht signiert   Weitere Informationen > Trotzdem ausführen
+  Rote Kacheln   kein Baustein für diese Form   Kachel an der Ecke ergänzen oder entfernen
+
+Quelle: Tests und Fehlerbehebungen vom 14.09.2026 (Releases 0.1.1 und 0.1.2), SDK-Readme.
+

@@ -14,9 +14,13 @@ and the file formats of the game in one window.
   starts it; grey means it is missing and the download link is one click
   away. A program somewhere else on the disk is shown to the hub once and
   remembered.
-- **Guides (6).** The guide texts from the `guides` folder in English and
-  German, with a search, and a window of its own per guide. Drop your own
-  text file in and it is there on the next start.
+- **Guides (13).** The guide texts from the `guides` folder in English and
+  German, with a search, and a window of its own per guide: the editor and
+  dungeon guides, the console commands and the CREATE command distilled from
+  the archived InsideTwoWorlds forum, and the guide of every Alchemy Fox tool
+  (WD Packer, Mod Manager, PAR Editor, Dungeon Editor) - the same text the
+  tool shows under F1. Drop your own text file in and it is there on the next
+  start.
 - **File formats (11).** What `.wd`, `.lan`, `.par`, `.lnd`, `.phx`, `.lhc`
   and the rest hold - and which tool handles them.
 - One search field for whichever list is open: a word, a tool name or an

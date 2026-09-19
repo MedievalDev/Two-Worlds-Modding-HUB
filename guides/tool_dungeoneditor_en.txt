@@ -1,0 +1,256 @@
+TW1 Dungeon Editor - the guide
+==============================
+
+The tool shows the same guide under Help > Guide (F1).
+
+======================================================================
+GETTING STARTED
+======================================================================
+
+Getting started
+
+TW1 Dungeon Editor is a frame around Dungeons.exe from the Two Worlds SDK.
+According to the SDK notes, the game's dungeons were built with this editor.
+You paint the layout top-down on a grid, the editor picks the matching wall
+and corridor blocks and in the end writes a console script for the Two Worlds
+Editor.
+
+The window has four areas:
+
+- Menu bar and toolbar at the top: file, modes, zoom. Every button just
+  sends the original keys to the editor.
+- Canvas on the left: the embedded Dungeons.exe window, fixed at
+  1024 x 768 pixels.
+- Hint panel on the right: mouse and keys of the current mode, warning
+  colours, checklist for the way into the game.
+- Status bar at the bottom: mode, file, unsaved, checklist.
+
+The ? next to titles explains on hover and jumps to the matching chapter on
+click. The short tour is under Help > Start tour.
+
+Keys
+  Key   Effect
+  F1   Guide
+  Tab   next mode
+  F2   Save
+  F3   Open
+  F4   Set map offset
+  F5   export console script
+  F6   load old dungeon
+  F8   reset everything
+  Page Up/Down   Zoom
+  Arrows   scroll view
+
+Source: SDK Documentation\Dungeons readme.txt, section 1. Zoom direction measured on 14 Sep 2026: Page Down zooms in, Page Up zooms out.
+
+======================================================================
+FIRST DUNGEON IN 10 MINUTES
+======================================================================
+
+First dungeon in 10 minutes
+
+1. Look at an original: File > Open, pick Dungeons\Dungeons\7.txt from
+   the SDK. It is the smallest sample. Use the mode buttons to step through
+   height, type and lights.
+2. New: toolbar > New clears the grid.
+3. Two rooms and a corridor: in Layout mode, paint a 4 x 4 room with the
+   left mouse button, a corridor of 7 tiles to the right and a second 3 x 3
+   room. As long as nothing is red, green or violet, every tile fits.
+4. Save: toolbar > Save (F2), name it e.g. mydungeon.txt. That is the
+   grid for later edits.
+5. Export: toolbar > Export (F5), name it e.g. mydungeon_src.txt. That is
+   the script for the Two Worlds Editor.
+6. Into the game: continue with the chapter "Export and the way into the
+   game". The steps are also a checklist in the hint panel.
+
+Measured on 14 Sep 2026: the layout from step 3 gives 31 tiles and 19 script
+lines. Large wall pieces cover several tiles.
+
+======================================================================
+LAYOUT
+======================================================================
+
+Layout
+
+This is where the shape of the dungeon is made. You only paint where there
+should be space. Which wall, corner or corridor that becomes is up to the
+editor. The letters A to M show the chosen block, e.g. DUN_WALL_B or
+DUN_CORR_K.
+
+  Input   Effect
+  Left mouse button   draw tile
+  Right mouse button   remove tile
+  Click on block   next block variant
+
+Source: SDK Dungeons readme.txt, section 2.
+
+Colours in the editor
+
+  Colour   Meaning
+  Red   Invalid block, no matching block set
+  Green   Hole, blocks must be added
+  Violet   Block sits on another one, move one of them
+
+Source: SDK Dungeons readme.txt, section 2.
+
+Pitfalls
+
+- Red does not mean painted wrong, it means there is no block for this
+  shape. Often one tile more or less at the corner helps.
+- No undo. The old editor has none. Save often with F2.
+
+======================================================================
+HEIGHT
+======================================================================
+
+Height
+
+Corridors can rise and fall. Every block has a height, the number on the
+block. A click switches to the next variant of the block, and some variants
+change the height.
+
+  Input   Effect
+  Click on block   change block variant / height
+  White number   block keeps the height
+  Yellow number   block changes the height
+
+Source: SDK Dungeons readme.txt, section 3.
+
+Colours in the editor
+
+  Colour   Meaning
+  Violet   Height mismatch at a block joint, or dungeon too high
+
+Source: SDK Dungeons readme.txt, section 3.
+
+======================================================================
+TYPE
+======================================================================
+
+Type
+
+Every area of the dungeon gets a style. The type decides which block family
+ends up in the script, e.g. DUN_WALL_E_01 or Cave_WALL_E_01.
+
+  Input   Effect
+  Left mouse button   select single block
+  Right mouse button   select group of blocks
+  Mouse wheel   set dungeon type (DUN 01..07b, Cave, Mine)
+
+Source: SDK Dungeons readme.txt, section 4.
+
+Colours in the editor
+
+  Colour   Meaning
+  Selection colour   Selection colour = type as defined in dungeon.txt
+
+Source: SDK Dungeons readme.txt, section 4.
+
+Dungeon types
+
+dungeon.txt was not found. File > Choose editor exe.
+
+======================================================================
+OBJECTS AND LIGHTS
+======================================================================
+
+Objects and lights
+
+In these two modes you place torches, lights and other objects from the
+groups in dungeon.txt. Lights mode shows the list of light sources at the
+top left.
+
+  Input   Effect
+  Left mouse button   place object
+  Ctrl + click   pick up object type
+  Shift + click   remove last placed object
+  Shift + Ctrl + click   remove all objects of this type
+  Mouse wheel   change object type
+
+Source: SDK Dungeons readme.txt, section 5.
+
+Objects and lights from dungeon.txt
+
+dungeon.txt was not found.
+
+You add your own objects and lights to dungeon.txt. Back the file up first.
+Whether self-added objects work in the game is unverified.
+
+======================================================================
+EXPORT AND THE WAY INTO THE GAME
+======================================================================
+
+Export and the way into the game
+
+Export (F5) writes a text file with one createEd line per block:
+
+createEd 18815 25727 4096 64 Cave_WALL_E_01 1
+
+Fields of a line
+  Field   Content   Status
+  x, y   position in world units, 256 per tile   measured
+  z   height, samples 4096 to 4480   measured
+  alpha   rotation, samples only use 0, 64, 128, 192   values measured, meaning unverified
+  objectID   block, e.g. DUN_WALL_D_03   proven
+  meshVariant   variant, samples use 1 to 3   measured
+
+Source: SDK Documentation\Editor console.txt (syntax createEd x y z alpha [beta phi] objectID [meshVariant] [meshScale]), values from the SDK scripts *src.txt and an export on 14 Sep 2026.
+
+Into the game
+
+These steps are also a checklist in the hint panel. The tool does not do them
+itself, because they happen in the Two Worlds Editor.
+
+1. Set the offset: before exporting, use Offset (F4) to decide where the
+   dungeon lands in the world. The coordinates in the script are absolute.
+2. Copy the script into the game folder. According to _info_.txt in the
+   SDK, console scripts for the editor have to be in the game directory.
+3. Open an empty underground level in the Two Worlds Editor.
+4. Run the script: in the editor console @mydungeon_src.txt.
+5. Run @edundgr.txt (SDK folder Game): colours the terrain and disables
+   impassable places.
+6. Place enemies, chests, markers as usual.
+
+Unverified: steps 2 to 5 follow the SDK notes. They have not yet been
+replayed all the way into the game with this tool.
+
+======================================================================
+REFERENCE
+======================================================================
+
+Reference
+
+Original grids in the SDK
+
+Every grid can be loaded with Open. The script next to it shows what the
+editor made of it.
+
+Folder Dungeons\Dungeons not found.
+
+Modes in Tab order
+
+  Mode   Exe window title
+  Grundriss   Dungeons - editing dungeon
+  Höhe   Dungeons - editing dungeon height
+  Typ   Dungeons - editing dungeon type
+  Objekte   Dungeons - editing objects
+  Lichter   Dungeons - editing lights
+
+Source: measured on 14 Sep 2026 by pressing Tab five times.
+
+======================================================================
+TROUBLESHOOTING
+======================================================================
+
+Troubleshooting
+
+  What happens   Cause   What helps
+  Editor does not start   exe without dungeon.txt or Data next to it   File > Choose editor exe, take Dungeons.exe from TwoWorldsSDK\Dungeons
+  Recent files load nothing   tool older than 0.1.1   update to 0.1.1 or newer
+  Zoom + does nothing   default view is already the closest level   use Zoom - first
+  Clicks on the grid do nothing   the exe's file dialog is still open, often behind the window   find the dialog in the taskbar and close it
+  Windows warns on start   the exe is not signed   More info > Run anyway
+  Red tiles   no block for this shape   add or remove a tile at the corner
+
+Source: tests and bug fixes from 14 Sep 2026 (releases 0.1.1 and 0.1.2), SDK readme.
+

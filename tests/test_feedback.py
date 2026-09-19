@@ -21,7 +21,7 @@ import foxfeedback  # noqa: E402
 import foxfeedback_ui  # noqa: E402
 
 TOOL = 'moddinghub'                # the slug the server knows
-VERSION = '3.0.0'                 # the tool's version constant
+VERSION = '3.1.0'                 # the tool's version constant
 UNTESTED = os.path.join(ROOT, 'untested.json')
 
 
