@@ -105,9 +105,9 @@ DE = {
     'Menu bar': 'Menueleiste',
     'Language, the guide (F1), links, and the update check sit up here.':
         'Sprache, der Guide (F1), Links und die Update-Pruefung sitzen hier oben.',
-    'Back': 'Zurueck', 'Next': 'Weiter', 'Done': 'Fertig',
-    'Do not show again': 'Nicht mehr zeigen',
-    'Step {n} of {total}': 'Schritt {n} von {total}',
+    'Tour': 'Rundgang', "Don't show at startup": 'Beim Start nicht mehr zeigen',
+    'Back': 'Zurueck', 'Next': 'Weiter', 'Quit tour': 'Rundgang beenden',
+    'Step {n} of {m}': 'Schritt {n} von {m}', 'Finish': 'Fertig',
 }
 
 
@@ -213,72 +213,106 @@ GUIDE_STEPS = (
 
 
 class Guide:
-    """The tour of the first start (PY_TOOL_DESIGN.md 6.1)."""
-
     def __init__(self, app):
-        self.app = app
-        self.win = None
-        self.n = 0
+        self.app, self.i, self.frames, self.win = app, 0, [], None
 
     def start(self):
-        self.n = 0
-        self.show()
-
-    def show(self):
-        app, step = self.app, GUIDE_STEPS[self.n]
-        if self.win is not None:
+        self.i = 0
+        if self.win:
             self.win.destroy()
-        self.win = win = tk.Toplevel(app.root)
-        win.transient(app.root)
-        win.overrideredirect(True)
-        win.configure(background=theme.GOLD)
-        f = ttk.Frame(win, padding=14)
-        f.pack(fill='both', expand=True, padx=1, pady=1)
-        ttk.Label(f, text=tr(step['title']), style='H2.TLabel').pack(anchor='w')
-        ttk.Label(f, text=tr(step['text']), wraplength=330, justify='left',
-                  style='Muted.TLabel').pack(anchor='w', pady=(6, 10))
-        row = ttk.Frame(f)
-        row.pack(fill='x')
-        ttk.Label(row, text=tr('Step {n} of {total}').format(n=self.n + 1, total=len(GUIDE_STEPS)),
-                  style='Muted.TLabel').pack(side='left')
-        ttk.Button(row, text=tr('Done') if self.n == len(GUIDE_STEPS) - 1 else tr('Next'),
-                   style='Accent.TButton', command=self.nxt).pack(side='right')
-        if self.n:
-            ttk.Button(row, text=tr('Back'), command=self.prev).pack(side='right', padx=6)
-        dont = tk.BooleanVar(value=False)
-        ttk.Checkbutton(f, text=tr('Do not show again'), variable=dont,
-                        command=lambda: self.finish(dont.get())).pack(anchor='w', pady=(10, 0))
-        win.update_idletasks()
-        target = getattr(app, step['widget'], None) if step['widget'] else None
-        try:
-            if target is not None and target.winfo_ismapped():
-                x = target.winfo_rootx() + target.winfo_width() // 2 - win.winfo_width() // 2
-                y = target.winfo_rooty() + target.winfo_height() + 8
-            else:
-                x = app.root.winfo_rootx() + app.root.winfo_width() // 2 - win.winfo_width() // 2
-                y = app.root.winfo_rooty() + 140
-            win.geometry(f'+{max(0, x)}+{max(0, y)}')
+        self.win = tk.Toplevel(self.app.root)
+        self.win.title(tr('Tour'))
+        self.win.configure(background=theme.PANEL)
+        self.win.transient(self.app.root)
+        self.win.protocol('WM_DELETE_WINDOW', lambda: self.finish(False))
+        theme.dark_titlebar(self.win)
+        f = ttk.Frame(self.win, style='Panel.TFrame', padding=14)
+        f.pack(fill='both', expand=True)
+        self.head = ttk.Label(f, style='PanelTitle.TLabel')
+        self.head.pack(anchor='w')
+        self.title = ttk.Label(f, style='Panel.TLabel', font=theme.FONT_H2, foreground=theme.GOLD)
+        self.title.pack(anchor='w', pady=(4, 6))
+        self.text = ttk.Label(f, style='Panel.TLabel', wraplength=340, justify='left')
+        self.text.pack(anchor='w')
+        self.dont = tk.BooleanVar(value=False)
+        ttk.Checkbutton(f, text=tr("Don't show at startup"), variable=self.dont,
+                        style='Panel.TCheckbutton').pack(anchor='w', pady=(14, 8))
+        b = ttk.Frame(f, style='Panel.TFrame')
+        b.pack(fill='x')
+        self.back = ttk.Button(b, text=tr('Back'), command=self.prev)
+        self.back.pack(side='left')
+        self.next = ttk.Button(b, text=tr('Next'), style='Accent.TButton', command=self.nxt)
+        self.next.pack(side='left', padx=8)
+        ttk.Button(b, text=tr('Quit tour'), command=lambda: self.finish(self.dont.get())).pack(side='right')
+        self.win.bind('<Escape>', lambda e: self.finish(self.dont.get()))
+        self.win.bind('<Return>', lambda e: self.nxt())
+        self.show()
+        self.place()
+        try:                                   # sonst geht er hinter dem Fenster auf
+            self.win.lift()
+            self.win.attributes('-topmost', True)
         except tk.TclError:
             pass
 
+    def place(self):
+        """Rechts neben das Fenster, sonst hinein - nie aus dem Bildschirm."""
+        r = self.app.root
+        self.win.update_idletasks()
+        w, h = self.win.winfo_width(), self.win.winfo_height()
+        x, y = r.winfo_rootx() + r.winfo_width() + 8, r.winfo_rooty() + 60
+        if x + w > r.winfo_screenwidth():
+            x = max(0, r.winfo_rootx() + 16)
+        y = min(y, max(0, r.winfo_screenheight() - h - 40))
+        self.win.geometry(f'+{x}+{y}')
+
+    def show(self):
+        s = GUIDE_STEPS[self.i]
+        self.head.configure(text=tr('Step {n} of {m}').format(n=self.i + 1, m=len(GUIDE_STEPS)))
+        self.title.configure(text=tr(s['title']))
+        self.text.configure(text=tr(s['text']))
+        self.back.state(['!disabled'] if self.i > 0 else ['disabled'])
+        self.next.configure(text=tr('Next') if self.i < len(GUIDE_STEPS) - 1 else tr('Finish'))
+        self.highlight(getattr(self.app, s['widget'], None) if s['widget'] else None)
+
     def prev(self):
-        self.n = max(0, self.n - 1)
-        self.show()
+        if self.i > 0:
+            self.i -= 1
+            self.show()
 
     def nxt(self):
-        if self.n >= len(GUIDE_STEPS) - 1:
+        if self.i < len(GUIDE_STEPS) - 1:
+            self.i += 1
+            self.show()
+        else:
             self.finish(True)
-            return
-        self.n += 1
-        self.show()
 
-    def finish(self, seen):
-        if self.win is not None:
-            self.win.destroy()
-            self.win = None
-        if seen:
+    def highlight(self, widget):
+        for f in self.frames:
+            f.destroy()
+        self.frames = []
+        if widget is None:
+            return
+        root = self.app.root
+        root.update_idletasks()
+        x = widget.winfo_rootx() - root.winfo_rootx()
+        y = widget.winfo_rooty() - root.winfo_rooty()
+        w, h, t = widget.winfo_width(), widget.winfo_height(), 3
+        for fx, fy, fw, fh in ((x, y, w, t), (x, y + h - t, w, t), (x, y, t, h), (x + w - t, y, t, h)):
+            f = tk.Frame(root, background=theme.GOLD)
+            f.place(x=fx, y=fy, width=fw, height=fh)
+            self.frames.append(f)
+
+    def finish(self, dont_show):
+        self.highlight(None)
+        if dont_show or self.i == len(GUIDE_STEPS) - 1:
             self.app.cfg['guide_seen'] = True
             self.app.cfg.save()
+        if self.win:
+            self.win.destroy()
+            self.win = None
+
+
+# ------------------------------------------------------------------ App --
 
 
 class App:
@@ -398,11 +432,11 @@ class App:
 
     # ---- window ----
     def build(self):
-        self.build_menubar()
         self.statusbar = ttk.Frame(self.root, style='Status.TFrame')
         self.statusbar.pack(fill='x', side='bottom')
         self.status_lbl = ttk.Label(self.statusbar, text='', style='Status.TLabel')
         self.status_lbl.pack(side='left', padx=10, pady=3)
+        self.build_menubar()
         body = ttk.Frame(self.root, padding=(14, 10, 14, 8))
         body.pack(fill='both', expand=True)
 
@@ -481,14 +515,35 @@ class App:
         self.fill()
 
     def build_menubar(self):
-        bar = theme.Menu(self.root, tearoff=0)
-        self.root.configure(menu=bar)
-        for label, filler in (('File', self._fill_file), ('View', self._fill_view),
-                              ('Help', self._fill_help)):
-            m = theme.Menu(bar, tearoff=0)
-            filler(m)
-            bar.add_cascade(label=tr(label), menu=m)
+        bar = ttk.Frame(self.root, style='Menubar.TFrame')
+        bar.pack(fill='x')
+        self.menubar = bar
+        for key, filler in ((tr('File'), self._fill_file), (tr('View'), self._fill_view),
+                            (tr('Help'), self._fill_help)):
+            item = ttk.Label(bar, text=key, style='Menubar.TLabel')
+            item.pack(side='left')
+            item.bind('<Button-1>', lambda ev, f=filler, w=item: self._popup(f, w))
+            item.bind('<Enter>', lambda ev, w=item: w.state(['active']))
+            item.bind('<Leave>', lambda ev, w=item: w.state(['!active']))
+        ttk.Label(bar, text=APP_NAME, style='Menubar.TLabel').pack(side='right', padx=(0, 6))
+        box = ttk.Frame(bar, style='Menubar.TFrame')
+        for i, code in enumerate(('de', 'en')):
+            if i:
+                ttk.Label(box, text='·', style='Menubar.TLabel', padding=(2, 5)).pack(side='left')
+            lbl = ttk.Label(box, text=code.upper(), style='Menubar.TLabel', padding=(4, 5), cursor='hand2',
+                            foreground=theme.GOLD if code == _LANG else theme.MUT)
+            lbl.pack(side='left')
+            lbl.bind('<Button-1>', lambda ev, c=code: self.set_lang(c))
+        box.pack(side='right', padx=(0, 10))
         self._bind_keys()
+
+    def _popup(self, filler, widget):
+        menu = theme.Menu(self.root)
+        filler(menu)
+        try:
+            menu.tk_popup(widget.winfo_rootx(), widget.winfo_rooty() + widget.winfo_height())
+        finally:
+            menu.grab_release()
 
     def _fill_file(self, m):
         m.add_command(label=tr('Open guides folder'), command=self.open_guides_folder)
